@@ -1,12 +1,16 @@
 package org.firstinspires.ftc.teamcode.drivetrains;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 /**
  * A default Mecanum Drive
@@ -18,7 +22,7 @@ public class Mecanum {
     public final double MAX_POWER = 1;
 
     //Motors and Sensors
-    private DcMotor frontLeft, backLeft, frontRight, backRight;
+    private DcMotorEx frontLeft, backLeft, frontRight, backRight;
 //    private IMU imu;
 
     //Internal Variables
@@ -30,10 +34,10 @@ public class Mecanum {
      */
     public Mecanum(HardwareMap hw){
         //Initialize Motors
-        frontLeft = hw.get(DcMotor.class,"FLM");
-        backLeft = hw.get(DcMotor.class,"BLM");
-        frontRight = hw.get(DcMotor.class,"FRM");
-        backRight = hw.get(DcMotor.class,"BRM");
+        frontLeft = hw.get(DcMotorEx.class,"FLM");
+        backLeft = hw.get(DcMotorEx.class,"BLM");
+        frontRight = hw.get(DcMotorEx.class,"FRM");
+        backRight = hw.get(DcMotorEx.class,"BRM");
 
         //Reverse some motors
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -111,6 +115,14 @@ public class Mecanum {
         fieldCentricActive = !fieldCentricActive;
     }
 
+    @SuppressLint("DefaultLocale")
+    public String getDriveTrainCurrent(){
+        return String.format("Drive Train Total Current: %f",
+                frontLeft.getCurrent(CurrentUnit.AMPS)
+                + backLeft.getCurrent(CurrentUnit.AMPS)
+                + frontRight.getCurrent(CurrentUnit.AMPS)
+                + backRight.getCurrent(CurrentUnit.AMPS));
+    }
 
 
     /**

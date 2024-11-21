@@ -36,14 +36,13 @@ public class Arm {
 //    private int DEPOSIT_HEIGHT = -220;//3450 - 3670; //ticks 3670
 
     public enum ArmState{
-        BASE_HEIGHT,
-        SPECIMEN_HEIGHT,
-        REST_HEIGHT,
-        DEPOSIT_HEIGHT,
-        DEPOSIT_HEIGHT_FORWARD,
-
-        REVERSE_SPECIMEN_HEIGHT,
-        VERTICAL_HEIGHT
+        SAMPLE_INTAKE, //Position to intake Samples
+        SAMPLE_DEPOSIT, //Deposit Sample (Backward)
+        SAMPLE_DEPOSIT_FORWARD, //Deposit Sample Forward
+        SPECIMEN_DEPOSIT, //Deposit Specimen
+        SPECIMEN_INTAKE, //Position to intake Specimen
+        STOW_POSITION, //Default Stowed Position
+        VERTICAL_POSITION //Align Arm with Lift
     }
 
     private HashMap<ArmState, Integer> armPositions;
@@ -80,16 +79,22 @@ public class Arm {
         //Pid Setup
         pid = new PIDController(0.0005,0,0.00006,0.11);
         pid.setTarget(getPosition());
-        currentState = ArmState.REST_HEIGHT;
+        currentState = ArmState.STOW_POSITION;
 
         armPositions = new HashMap<ArmState,Integer>();
-        armPositions.put(ArmState.DEPOSIT_HEIGHT, -220);
-        armPositions.put(ArmState.REST_HEIGHT, 200);
-        armPositions.put(ArmState.SPECIMEN_HEIGHT, 3400);
-        armPositions.put(ArmState.BASE_HEIGHT,3170);
-        armPositions.put(ArmState.REVERSE_SPECIMEN_HEIGHT, -120); // Adjust Once Measured
-        armPositions.put(ArmState.DEPOSIT_HEIGHT_FORWARD, 2000);
-        armPositions.put(ArmState.VERTICAL_HEIGHT,1000);
+
+        //Deposit Positions
+        armPositions.put(ArmState.SAMPLE_DEPOSIT, -220);
+        armPositions.put(ArmState.SPECIMEN_DEPOSIT, -90);
+        armPositions.put(ArmState.SAMPLE_DEPOSIT_FORWARD, 2000);
+
+        //Intake Positions
+        armPositions.put(ArmState.SPECIMEN_INTAKE, 3400);
+        armPositions.put(ArmState.SAMPLE_INTAKE,3170);
+
+        //Stow Positions
+        armPositions.put(ArmState.STOW_POSITION, 200);
+        armPositions.put(ArmState.VERTICAL_POSITION,1000);
 
     }
 

@@ -3,11 +3,8 @@ package org.firstinspires.ftc.teamcode.auto;
 import android.annotation.SuppressLint;
 
 import com.acmerobotics.roadrunner.InstantAction;
-import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -15,12 +12,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.FourEyesRobot;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous(name = "YellowSideAuto")
@@ -119,7 +114,7 @@ public class YellowSideAuto extends LinearOpMode {
                         .stopAndAdd(new InstantAction(robot::VerticalArm))
 //                        .stopAndAdd(robot.waitForLiftArmPID(1))
                         .stopAndAdd(new InstantAction(() -> this.addTelemetryMessage("Stow Lift...")))
-                        .stopAndAdd(new InstantAction(robot::resetLift))
+                        .stopAndAdd(new InstantAction(robot::liftGoToZero))
                         .stopAndAdd(robot.waitForLiftArmPID(3))
 
 
@@ -155,7 +150,7 @@ public class YellowSideAuto extends LinearOpMode {
                         .stopAndAdd(new InstantAction(robot::VerticalArm))
                         .stopAndAdd(robot.waitForLiftArmPID(1))
                         .stopAndAdd(new InstantAction(() -> this.addTelemetryMessage("Stow Lift...")))
-                        .stopAndAdd(new InstantAction(robot::resetLift))
+                        .stopAndAdd(new InstantAction(robot::liftGoToZero))
                         .stopAndAdd(robot.waitForLiftArmPID(3))
 
 
@@ -190,7 +185,7 @@ public class YellowSideAuto extends LinearOpMode {
                         .stopAndAdd(new InstantAction(robot::VerticalArm))
                         .stopAndAdd(robot.waitForLiftArmPID(1))
                         .stopAndAdd(new InstantAction(() -> this.addTelemetryMessage("Stow Lift...")))
-                        .stopAndAdd(new InstantAction(robot::resetLift))
+                        .stopAndAdd(new InstantAction(robot::liftGoToZero))
                         .stopAndAdd(robot.waitForLiftArmPID(3))
 
 

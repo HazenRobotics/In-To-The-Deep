@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.FourEyesRobot;
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 
 @TeleOp(name="Pepto Bismal")
 public class FourEyesTeleOp extends LinearOpMode {
+
+    private boolean easterEgg = false;
     FourEyesRobot fourEyesRobot;
     GamepadEvents controller1,controller2;
     public static GamepadEvents.GamepadButton[] binding1;
@@ -36,12 +39,15 @@ public class FourEyesTeleOp extends LinearOpMode {
                 controller2.a,
                 controller2.x,
                 controller2.dpad_up,
-                controller2.dpad_down
+                controller2.dpad_down,
+                controller2.left_bumper,
         };
-
+        ElapsedTime timer = new ElapsedTime();
 
         waitForStart();
         fourEyesRobot.initializePowerStates();
+        timer.reset();
+
         while (opModeIsActive()) {
 
             fourEyesRobot.drive(controller1.left_stick_y, controller1.left_stick_x, controller1.right_stick_x);
@@ -79,15 +85,29 @@ public class FourEyesTeleOp extends LinearOpMode {
             if(binding1[7].onPress() || binding2[5].onPress()){
                 fourEyesRobot.lowerClimb();
             }
+            if (easterEgg){
+                if(binding2[6].onPress()){
+                    fourEyesRobot.toggleFlagWave();
+                }
+                //3 minutes since start phase
+                else if (timer.seconds() > 180) {
+                    fourEyesRobot.turnOnWave();
+                }
+            }
+            //End game warning
+            if (timer.seconds() > 90){
+                gamepad1.rumble(1000);
+            }
+
 
             //Player 2 controls
             //Manual driving
             //Lift manual control
-            fourEyesRobot.moveLift(-controller2.left_stick_y);
+            fourEyesRobot.moveLift(controller1.right_trigger.getTriggerValue() - controller1.left_trigger.getTriggerValue());
             //Arm manual control
             fourEyesRobot.changeHeightArm(controller2.right_stick_y);
             //Wrist manual control
-            fourEyesRobot.setWristPosition(controller2.right_trigger.getTriggerValue() - controller2.left_trigger.getTriggerValue());
+            fourEyesRobot.setWristPosition(-controller2.left_stick_y);
 
             //Active intake manual control
             //Y Key

@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ftc.Encoder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,19 +23,20 @@ public class Lift {
 
     //Adjustable Constants
     public int LIFT_SPEED = 50; //ticks per call
-    public double POWER = 1; //Max Power
+
 
 
     //Lift Positions and possible States
 
     public enum LiftStates{
-        ZERO,
-        HOVER,
-        CLIMB,
-        SPECIMEN_INTAKE,
-        SPECIMEN_SCORE,
-        HIGH_BAR,
-        MAX_HEIGHT
+        SAMPLE_DEPOSIT, //Maximum Possible Height for Sample Scoring
+        SAMPLE_INTAKE, // Lift at Submersible Intake Height
+
+        SPECIMEN_DEPOSIT, //Specimen Scoring Height
+        SPECIMEN_INTAKE, //Specimen Intake Height
+        ZERO, //Lift at Lowest Possible Height
+        CLIMB //Preparing to Climb
+
     }
 
     private int MAX_HEIGHT_POSITION = 4300;//ticks
@@ -51,7 +53,9 @@ public class Lift {
 
     private int targetPosition;
 
+    private HardwareMap hw;
     private final Encoder encoder;
+    private String encoderName;
     private final PIDController pid;
 
 
@@ -72,11 +76,15 @@ public class Lift {
      * @param nameLeft [String] Name of the left motor assigned in the configuration.
      * @param nameRight [String] Name of the right motor assigned in the configuration.
      */
-    public Lift(HardwareMap hw, String nameLeft, String nameRight, String nameEncoder){
+    public Lift(HardwareMap hw, String nameLeft, String nameRight, String encoderName){
+        this.hw = hw;
+        this.encoderName = encoderName;
+
         //Initialize motors
         this.liftLeft = hw.get(DcMotorEx.class, nameLeft);
         this.liftRight = hw.get(DcMotorEx.class, nameRight);
-        encoder = new OverflowEncoder(new RawEncoder(hw.get(DcMotorEx.class, nameEncoder)));
+
+        encoder = new OverflowEncoder(new RawEncoder(hw.get(DcMotorEx.class, encoderName)));
         //Reverse one of the motors
         this.liftRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -90,14 +98,21 @@ public class Lift {
         //Calculate the ratios by [Desired Tick Position] / [MAX_HEIGHT_POSITION]
         //This way the ratio can be reused despite different gear ratios or tick resolutions
         //Aim for at least 6 decimal places, the more the better.
-        liftPositions.put(LiftStates.ZERO, 0);
-        liftPositions.put(LiftStates.HOVER, (int) (0.0163934 * MAX_HEIGHT_POSITION));
+
+
+        //Intake Positions
+        liftPositions.put(LiftStates.SAMPLE_INTAKE, (int) (0.0163934 * MAX_HEIGHT_POSITION));
         liftPositions.put(LiftStates.SPECIMEN_INTAKE,(int) (0.31860465 * MAX_HEIGHT_POSITION));
-        liftPositions.put(LiftStates.SPECIMEN_SCORE, (int) (0.344262 * MAX_HEIGHT_POSITION)); //1000 Old 1200
+
+        //Deposit Positions
+        liftPositions.put(LiftStates.SPECIMEN_DEPOSIT, (int) (0.455814 * MAX_HEIGHT_POSITION));
+        liftPositions.put(LiftStates.SAMPLE_DEPOSIT, MAX_HEIGHT_POSITION);
+
+        //Climb/Stow Positions
+        liftPositions.put(LiftStates.ZERO, 0);
         liftPositions.put(LiftStates.CLIMB, (int) (0.524590 * MAX_HEIGHT_POSITION));
-        liftPositions.put(LiftStates.HIGH_BAR, (int) (0.609302 * MAX_HEIGHT_POSITION)); //700 Old 1700
-        liftPositions.put(LiftStates.MAX_HEIGHT, MAX_HEIGHT_POSITION);
     }
+
 
 
 
@@ -115,6 +130,8 @@ public class Lift {
         targetPosition = liftPositions.get(state);
         pid.setTarget(targetPosition);
     }
+
+
     //------------------------------------------------------------------------------------------
     //----------------------------------Getter Functions----------------------------------------
     //------------------------------------------------------------------------------------------
@@ -154,7 +171,6 @@ public class Lift {
      * @param Kd [double] Increment to increase Kd by
      */
     public void adjustPID(double Kp, double Ki, double Kd, double Kf){
-//        double[] k = pid.getPIDValues();
         pid.setKp(Kp);
         pid.setKi(Ki);
         pid.setKd(Kd);
@@ -185,6 +201,25 @@ public class Lift {
         return power;
     }
 
+    public void doubleCurrentReset(){
+        double currentLimit = 10;
+        if (liftLeft.getCurrent(CurrentUnit.AMPS) + liftRight.getCurrent(CurrentUnit.AMPS) > currentLimit
+        && targetPosition < 0){
+            resetLift();
+        }
+    }
+
+    /**
+     * Resets the lift Encoders
+     */
+    public void resetLift(){
+        DcMotorEx port = hw.get(DcMotorEx.class,encoderName);
+        port.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        port.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        currentState = LiftStates.ZERO;
+        targetPosition = 0;
+    }
+
     //-----------------------------------------------------------------------------------------
     //----------------------------------Helper Functions---------------------------------------
     //-----------------------------------------------------------------------------------------
@@ -206,16 +241,18 @@ public class Lift {
             return String.format(
                     "Lift current position: %d\n" +
                     "Lift target position: %d\n" +
-                    "Lift current state: %s\n",
+                    "Lift current state: %s\n" +
+                    "%s\n",
                     getPosition(),
                     targetPosition,
-                    currentState);
+                    currentState,
+                    getLiftCurrent());
         }
         return toString();
     }
 
     @SuppressLint("DefaultLocale")
-    public String getArmCurrent(){
+    public String getLiftCurrent(){
         return String.format(
                 "Left Arm Current: %f\n" +
                         "Right Arm Current: %f",
@@ -223,6 +260,7 @@ public class Lift {
                 liftRight.getCurrent(CurrentUnit.AMPS)
         );
     }
+
 
     private double clamp(double value, double max, double min){
         return Math.max( min , Math.min( max , value));

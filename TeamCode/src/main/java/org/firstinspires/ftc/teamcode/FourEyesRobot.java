@@ -8,7 +8,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.drivetrains.Mecanum;
 import org.firstinspires.ftc.teamcode.subsystems.ActiveIntake;
@@ -61,7 +60,7 @@ public class FourEyesRobot extends Mecanum {
      */
     public void initializePowerStates(){
         lift.goToPosition(Lift.LiftStates.ZERO);
-        wrist.goToPosition(Wrist.WristStates.ParallelMode);
+        wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
         activeIntake.deactivateIntake();
         claw.closeClaw();
         parkFlag.stowFlag();
@@ -76,9 +75,9 @@ public class FourEyesRobot extends Mecanum {
      * Preparation to intake SAMPLE from the Submersible
      */
     public void intakeSamplePos() {
-        lift.goToPosition(Lift.LiftStates.HOVER);//Set the lift just high enough to be above submersible
-        arm.goToPosition(Arm.ArmState.BASE_HEIGHT);
-        wrist.goToPosition(Wrist.WristStates.SubHoverMode);
+        lift.goToPosition(Lift.LiftStates.SAMPLE_INTAKE);//Set the lift just high enough to be above submersible
+        arm.goToPosition(Arm.ArmState.SAMPLE_INTAKE);
+        wrist.goToPosition(Wrist.WristStates.SUB_HOVER);
         activeIntake.deactivateIntake();
         currentState = ScoringType.SAMPLE;
     }
@@ -89,8 +88,8 @@ public class FourEyesRobot extends Mecanum {
      */
     public void intakeSpecimenPos(){
         lift.goToPosition(Lift.LiftStates.SPECIMEN_INTAKE);//Lower lift as low as possible
-        arm.goToPosition(Arm.ArmState.SPECIMEN_HEIGHT);//Use arm to go to an angle to decrease extention length from center of rotation
-        wrist.goToPosition(Wrist.WristStates.PerpendicularMode);//Use wrist to counter act arm's rotation
+        arm.goToPosition(Arm.ArmState.SPECIMEN_INTAKE);//Use arm to go to an angle to decrease extention length from center of rotation
+        wrist.goToPosition(Wrist.WristStates.SPECIMEN_INTAKE);//Use wrist to counter act arm's rotation
         claw.closeClaw(); //Close the claw before hand so if the arm is behind, the claw won't hit the lift
         currentState = ScoringType.SPECIMEN;
     }
@@ -99,9 +98,9 @@ public class FourEyesRobot extends Mecanum {
      * This is to deposit samples from behind the robot.
      */
     public void depositSamplePos(){
-        lift.goToPosition(Lift.LiftStates.MAX_HEIGHT);//Raises lift to maximum height
-        arm.goToPosition(Arm.ArmState.DEPOSIT_HEIGHT);//Flips arm to go backwards
-        wrist.goToPosition(Wrist.WristStates.SampleDepositMode);//Flips wrist to angle
+        lift.goToPosition(Lift.LiftStates.SAMPLE_DEPOSIT);//Raises lift to maximum height
+        arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT);//Flips arm to go backwards
+        wrist.goToPosition(Wrist.WristStates.SAMPLE_DEPOSIT);//Flips wrist to angle
         claw.closeClaw(); //Closes claw if it was open from before
         currentState = ScoringType.SAMPLE;
     }
@@ -110,9 +109,9 @@ public class FourEyesRobot extends Mecanum {
      * This is to deposit samples from the forward direction.
      */
     public void depositSamplePosForward(){
-        lift.goToPosition(Lift.LiftStates.MAX_HEIGHT);//Raises lift to maximum height
-        arm.goToPosition(Arm.ArmState.DEPOSIT_HEIGHT_FORWARD);//Flips arm to go backwards
-        wrist.goToPosition(Wrist.WristStates.ParallelMode);//Flips wrist to angle
+        lift.goToPosition(Lift.LiftStates.SAMPLE_DEPOSIT);//Raises lift to maximum height
+        arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT_FORWARD);//Flips arm to go backwards
+        wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);//Flips wrist to angle
         claw.closeClaw(); //Closes claw if it was open from before
         currentState = ScoringType.SAMPLE;
     }
@@ -122,62 +121,72 @@ public class FourEyesRobot extends Mecanum {
      * Deposit SPECIMEN into High Bar
      */
     public void depositSpecimenPos(){
-        lift.goToPosition(Lift.LiftStates.HIGH_BAR);
+        lift.goToPosition(Lift.LiftStates.SPECIMEN_DEPOSIT);
 //        arm.goToPosition(Arm.ArmState.BASE_HEIGHT);
 //        wrist.goToPosition(Wrist.WristStates.ParallelMode);
-        arm.goToPosition(Arm.ArmState.REVERSE_SPECIMEN_HEIGHT);
-        wrist.goToPosition(Wrist.WristStates.SpeciminDepositMode);
+        arm.goToPosition(Arm.ArmState.SPECIMEN_DEPOSIT);
+        wrist.goToPosition(Wrist.WristStates.SPECIMEN_DEPOSIT);
         claw.closeClaw();
         currentState = ScoringType.SPECIMEN;
     }
 
+    /**
+     * Used for auto to temporarily stow Arm
+     */
     public void VerticalArm(){
-        arm.goToPosition(Arm.ArmState.VERTICAL_HEIGHT);
+        arm.goToPosition(Arm.ArmState.VERTICAL_POSITION);
     }
 
-    public void resetLift(){
+    /**
+     * Used for auto to set Lift to 0
+     */
+    public void liftGoToZero(){
         lift.goToPosition(Lift.LiftStates.ZERO);
     }
 
+    /**
+     * Reverses Intake to Deposit
+     */
     public void intakeBackward() {
         activeIntake.reverseIntake();
     }
     public void intakeStop() {
-        wrist.goToPosition(Wrist.WristStates.ParallelMode);
+        wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
         activeIntake.deactivateIntake();
     }
 
 
     //Right bumper
+    /**
+     * If the lift is currently in the Sample Intake State,
+     */
     public void toggleIntake(){
-        switch(lift.getState()){
+        if(currentState == ScoringType.SAMPLE){
             //Sample Modes
             //Currently hovering above sub
-            case HOVER:
-                if (wrist.getState() == Wrist.WristStates.SubHoverMode) {
-                    //Switch to intake mode
-                    wrist.goToPosition(Wrist.WristStates.SampleIntakeMode);
-                    //Activate intake
-                    activeIntake.activateIntake();
-                }
-                else{
-                    wrist.goToPosition(Wrist.WristStates.SubHoverMode);
-                }
-                break;
-            case HIGH_BAR:
-                lift.goToPosition(Lift.LiftStates.SPECIMEN_SCORE);
-                break;
-            case SPECIMEN_SCORE:
-                lift.goToPosition(Lift.LiftStates.HIGH_BAR);
-                break;
-            default:
-                break;
+            if (wrist.getState() == Wrist.WristStates.SUB_HOVER) {
+                //Switch to intake mode
+                wrist.goToPosition(Wrist.WristStates.SAMPLE_INTAKE);
+                //Activate intake
+                activeIntake.activateIntake();
+            }
+            else if(wrist.getState() == Wrist.WristStates.SAMPLE_INTAKE){
+                //Switch to Hover mode
+                wrist.goToPosition(Wrist.WristStates.SUB_HOVER);
+                //Activate intake
+                activeIntake.activateIntake();
+            }
         }
     }
 
     //Left bumper
+    /**
+     * Toggles a deposit system depending on which
+     * scoring system is currently active
+     */
     public void toggleDeposit(){
         switch (currentState){
+            //Toggles Active Intake if Sample scoring is active
             case SAMPLE:
                 if (activeIntake.isRunning()) {
                     activeIntake.deactivateIntake();
@@ -186,9 +195,9 @@ public class FourEyesRobot extends Mecanum {
                     activeIntake.reverseIntake();
                 }
                 break;
+            //Toggles claw if Specimen scoring is active
             case SPECIMEN:
                 claw.toggleClaw();
-
                 break;
             default:
                 break;
@@ -196,31 +205,42 @@ public class FourEyesRobot extends Mecanum {
     }
 
 
-
+    /**
+     * Raises the lift to climb the first bar.
+     */
     public void raiseClimb(){
-        arm.goToPosition(Arm.ArmState.REST_HEIGHT);
+        arm.goToPosition(Arm.ArmState.STOW_POSITION);
         lift.goToPosition(Lift.LiftStates.CLIMB);
     }
+
+    /**
+     * Function used to stow subsystems and to lower climb
+     */
     public void lowerClimb(){
-        arm.goToPosition(Arm.ArmState.REST_HEIGHT);
+        arm.goToPosition(Arm.ArmState.STOW_POSITION);
         lift.goToPosition(Lift.LiftStates.ZERO);
-        wrist.goToPosition(Wrist.WristStates.ParallelMode);
+        wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
         claw.closeClaw();
     }
 
 
-
+    /**
+     * Required for all OpModes utilizing subsystems
+     * This must be called otherwise subsystem PIDs
+     * and values will not update properly
+     */
     public void updatePID(){
         lift.update();
         arm.update();
         wrist.wristParallelToGround(arm.getRotation());
         activeIntake.checkForSample();
+        parkFlag.wave();
     }
 
 
     public void depositBasket(){
         currentState = ScoringType.SAMPLE;
-        wrist.goToPosition(Wrist.WristStates.SampleDepositMode);
+        wrist.goToPosition(Wrist.WristStates.SAMPLE_DEPOSIT);
     }
 
     //---------------------------------------------------------------------------------------------
@@ -257,6 +277,9 @@ public class FourEyesRobot extends Mecanum {
     public void raiseFlag(){
         parkFlag.raiseFlag();
     }
+
+    public void toggleFlagWave(){parkFlag.toggleWave();}
+    public void turnOnWave(){parkFlag.turnOnWave();}
     //---------------------------------------------------------------------------------------------
     //----------------------------------Auto Actions Controls--------------------------------------
     //---------------------------------------------------------------------------------------------
@@ -320,11 +343,13 @@ public class FourEyesRobot extends Mecanum {
     @SuppressLint("DefaultLocale")
     public String toString(){
         return String.format(
-                lift.toString(true) +
-                arm.toString(true) +
-                wrist.toString() +
-                activeIntake. toString() +
-                claw.toString() +
+                lift.toString(true) + "\n" +
+                arm.toString(true) +  "\n" +
+                wrist.toString() + "\n " +
+                activeIntake. toString() + "\n" +
+                claw.toString() + "\n" +
+                parkFlag.toString() + "\n" +
+                super.getDriveTrainCurrent() + "\n" +
                 "Current Scoring Type: %s\n",
                 currentState
         );

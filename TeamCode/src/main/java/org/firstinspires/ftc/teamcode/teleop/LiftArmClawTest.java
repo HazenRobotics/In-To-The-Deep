@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.drivetrains.Mecanum;
 import org.firstinspires.ftc.teamcode.subsystems.ActiveIntake;
@@ -55,7 +53,7 @@ public class LiftArmClawTest extends LinearOpMode {
 
 
         waitForStart();
-        wrist.goToPosition(Wrist.WristStates.ParallelMode);
+        wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
 //        claw.openClaw();
 //        intake.activateIntake();
         //Start Phase
@@ -115,22 +113,22 @@ public class LiftArmClawTest extends LinearOpMode {
             }
             if(controller1.b.onPress()){
 //                arm.goToSpecimin();
-                lift.goToPosition(Lift.LiftStates.MAX_HEIGHT);
+                lift.goToPosition(Lift.LiftStates.SAMPLE_DEPOSIT);
             }
             if(controller1.right_bumper.onPress()){
 //                arm.goToDeposit();
             }
 
             if(controller2.a.onPress()){
-                arm.goToPosition(Arm.ArmState.BASE_HEIGHT);
+                arm.goToPosition(Arm.ArmState.SAMPLE_INTAKE);
 //                lift.goToZero();
             }
             if(controller2.b.onPress()){
-                arm.goToPosition(Arm.ArmState.SPECIMEN_HEIGHT);
+                arm.goToPosition(Arm.ArmState.SPECIMEN_INTAKE);
 //                lift.goToTopBucket();
             }
             if(controller2.right_bumper.onPress()){
-                arm.goToPosition(Arm.ArmState.REST_HEIGHT);
+                arm.goToPosition(Arm.ArmState.STOW_POSITION);
             }
 
 
@@ -159,7 +157,7 @@ public class LiftArmClawTest extends LinearOpMode {
             telemetry.addData("Lift Position: ",lift.getPosition());
             telemetry.addData("Power: ",arm.update());
             telemetry.addData("Target position", lift.getTargetPosition());
-            telemetry.addLine(lift.getArmCurrent());
+            telemetry.addLine(lift.getLiftCurrent());
             telemetry.update();
             controller1.update();
             controller2.update();
