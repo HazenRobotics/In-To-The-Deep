@@ -56,17 +56,18 @@ public class Arm {
 
 
     private Encoder encoder;
+    private DcMotorEx motorPort;
     private PIDController pid;
     private int targetPosition;
 
     public Arm(HardwareMap hw){
-        this(hw, "armLeft", "armRight", "liftLeft");
+        this(hw, "armLeft", "armRight", "FLM");
     }
     public Arm(HardwareMap hw, String nameLeft, String nameRight, String nameEncoder){
         //Initialize hardware
         armLeft = hw.get(CRServo.class, nameLeft);
         armRight = hw.get(CRServo.class, nameRight);
-        DcMotorEx motorPort = hw.get(DcMotorEx.class, nameEncoder);
+        motorPort = hw.get(DcMotorEx.class, nameEncoder);
         //Resets encoder on start
         motorPort.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPort.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -119,9 +120,11 @@ public class Arm {
     }
 
     public int getPosition(){
-        return encoder.getPositionAndVelocity().position;
+        return motorPort.getCurrentPosition();//encoder.getPositionAndVelocity().position;
     }
-    public int getVelocity() {return encoder.getPositionAndVelocity().velocity;}
+    public double getVelocity() {
+        return motorPort.getVelocity();//encoder.getPositionAndVelocity().velocity;
+    }
 
     public double getForwardFeedValue(){
         return -Math.cos(Math.toRadians(getRotation()));

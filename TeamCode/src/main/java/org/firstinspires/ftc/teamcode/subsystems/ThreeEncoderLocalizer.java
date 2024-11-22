@@ -26,7 +26,7 @@ public class ThreeEncoderLocalizer extends ThreeDeadWheelLocalizer implements Lo
 
     String debugValue;
     public ThreeEncoderLocalizer(HardwareMap hw){
-        this(hw, new String[] {"FLM","BRM","BLM"});
+        this(hw, new String[] {"armEncoder","BRM","BLM"});
     }
 
     public ThreeEncoderLocalizer(HardwareMap hw, String[] names){

@@ -28,7 +28,7 @@ public class YellowSideAuto extends LinearOpMode {
     double armExtentionLength = 15;
 
     //Locations
-    private Pose2d startPosition = new Pose2d(-12,-66,Math.toRadians(180.2));
+    private Pose2d startPosition = new Pose2d(-12,-66,Math.toRadians(180));
     private Pose2d startPositionFromWall = new Pose2d(-12, -64, Math.toRadians(180));
     private Pose2d bucketPosition = new Pose2d(-54.5, -59.5, Math.toRadians(225));
 
@@ -238,7 +238,7 @@ public class YellowSideAuto extends LinearOpMode {
 //                        .splineTo(new Vector2d(-24,0),Math.toRadians(45),
                         .stopAndAdd(new InstantAction(robot::raiseFlag))
                         .setTangent(90)
-                        .splineToSplineHeading(new Pose2d(-24,-12,Math.toRadians(180)),Math.toRadians(-90),
+                        .splineToSplineHeading(new Pose2d(-24,-12,Math.toRadians(-90)),Math.toRadians(0),
                                 new TranslationalVelConstraint(80))
 
                         .stopAndAdd(new InstantAction ( () ->addTelemetryMessage("Complete! ")))
