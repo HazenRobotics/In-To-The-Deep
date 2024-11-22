@@ -45,15 +45,29 @@ public class SpecimenClipper extends LinearOpMode {
     public ElapsedTime timer;
 
     private double armExtentionLength = 15;
-    private Pose2d spikeRightActual = new Pose2d(41, -22, Math.toRadians(160));
+    private Pose2d spikeRightActual = new Pose2d(41, -23, Math.toRadians(160));
     private Pose2d spikeRightLineUp = calculateOffset(20, armExtentionLength, spikeRightActual);
     //calculateOffset(160,-2,new Pose2d(-24, -35,Math.toRadians(160)));
     private Pose2d spikeRightIntake = calculateOffset(10, armExtentionLength-10,spikeRightActual);
 
     //Yellow Spike Middle
-    private Pose2d spikeMiddleActual = new Pose2d(50, -22, Math.toRadians(0));
+    private Pose2d spikeMiddleActual = new Pose2d(50, -22, 0);
     private Pose2d spikeMiddleLineUp = calculateOffset(0,armExtentionLength, spikeMiddleActual);
     private Pose2d spikeMiddleIntake = calculateOffset(0,armExtentionLength-10, spikeMiddleActual);
+
+
+    //Yellow Spike Left
+    private Pose2d spikeLeftActual = new Pose2d(59, -22, 0);
+
+    private Pose2d spikeLeftLineUp = calculateOffset(0, armExtentionLength, spikeLeftActual);
+    private Pose2d spikeLeftIntake = calculateOffset(0,armExtentionLength-10, spikeLeftActual);
+
+    //Human Player Drop Off Position
+    private Pose2d dropOffPosition= new Pose2d(40,-48,Math.toRadians(-45));
+
+    //Retrieving Specimen from Human Player
+    private Pose2d specimenRetrievalPrepare = new Pose2d(48,-49,Math.toRadians(-90));
+    private Pose2d specimenRetrieval = new Pose2d(48,-53,Math.toRadians(-90));
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -85,31 +99,59 @@ public class SpecimenClipper extends LinearOpMode {
 
 
                                 //Intake Right Sample
-                                .strafeToLinearHeading(spikeRightLineUp.position, spikeRightLineUp.heading)
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Intake Right Sample")))
                                 .stopAndAdd(new InstantAction(robot::intakeSamplePos))
                                 .stopAndAdd(new InstantAction(robot::toggleIntake))
-                                .waitSeconds(armRetractTime)
+                                .strafeToLinearHeading(spikeRightLineUp.position, spikeRightLineUp.heading)
+                                .stopAndAdd(robot.waitForLiftArmPID(armRetractTime))
                                 .strafeToLinearHeading(spikeRightIntake.position,spikeRightIntake.heading,
                                         new TranslationalVelConstraint(intakeMaxSpeed))
-                                //Deposit Sample to
-                                .strafeToLinearHeading(new Vector2d(40,-48),Math.toRadians(-45))
-                                .stopAndAdd(new InstantAction(robot::intakeBackward))
-                                .stopAndAdd(new InstantAction(robot::toggleIntake))
+                                .stopAndAdd(new InstantAction(robot::toggleIntake)) //Raise Wrist
 
-                                //Intake Left Sample
+                                //Deposit Sample to Human Player
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Deposit Middle Sample")))
+                                .strafeToLinearHeading(dropOffPosition.position, dropOffPosition.heading)
+                                .stopAndAdd(new InstantAction(robot::intakeBackward))
+                                .waitSeconds(closeClawDelay)
+                                .stopAndAdd(new InstantAction(robot::deactivateIntake))
+
+                                //Intake Middle Sample
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Intake Middle Sample")))
                                 .strafeToLinearHeading(spikeMiddleLineUp.position, spikeMiddleLineUp.heading)
                                 .stopAndAdd(new InstantAction(robot::intakeSamplePos))
                                 .stopAndAdd(new InstantAction(robot::toggleIntake))
                                 .waitSeconds(armRetractTime)
                                 .strafeToLinearHeading(spikeMiddleIntake.position,spikeMiddleIntake.heading,
                                         new TranslationalVelConstraint(intakeMaxSpeed))
-                                //Deposit Sample to
-                                .strafeToLinearHeading(new Vector2d(40,-48),Math.toRadians(-45))
+                                .stopAndAdd(new InstantAction(robot::toggleIntake))//Raise Wrist
+
+                                //Deposit Sample to Human Player
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Deposit Middle Sample")))
+                                .strafeToLinearHeading(dropOffPosition.position, dropOffPosition.heading)
                                 .stopAndAdd(new InstantAction(robot::intakeBackward))
+                                .waitSeconds(closeClawDelay)
                                 .stopAndAdd(new InstantAction(robot::toggleIntake))
 
 
-//                                .strafeToLinearHeading()
+                                //Intake Outer Sample
+//                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Intake Outer Sample")))
+//                                .strafeToLinearHeading(spikeLeftLineUp.position, spikeLeftLineUp.heading)
+//                                .stopAndAdd(new InstantAction(robot::intakeSamplePos))
+//                                .stopAndAdd(new InstantAction(robot::openClaw))
+//                                .stopAndAdd(new InstantAction(robot::toggleIntake))
+//                                .waitSeconds(armRetractTime)
+//                                .strafeToLinearHeading(spikeLeftIntake.position, spikeLeftIntake.heading,
+//                                        new TranslationalVelConstraint(intakeMaxSpeed))
+//                                .strafeTo(calculateOffset(0,armExtentionLength-3.5, spikeLeftActual).position)
+//                                .stopAndAdd(new InstantAction(robot::toggleIntake))//Raise Wrist
+//
+//
+//                                //Deposit Sample to Human Player
+//                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Deposit Outer Sample")))
+//                                .strafeToLinearHeading(dropOffPosition.position, dropOffPosition.heading)
+//                                .stopAndAdd(new InstantAction(robot::intakeBackward))
+//                                .waitSeconds(closeClawDelay)
+//                                .strafeTo(calculateOffset(0,armExtentionLength-5, spikeLeftActual).position)                               .strafeToLinearHeading()
 //                                //Drive to pushing position
 //                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Pushing Left Sample")))
 //                                .strafeTo(new Vector2d(36,-30))
@@ -122,25 +164,46 @@ public class SpecimenClipper extends LinearOpMode {
 //                                .strafeTo(new Vector2d(xSpikeMiddle,ySpikeLineUp))
 //                                .strafeTo(new Vector2d(xSpikeMiddle,ySpikeHumanPlayerPush))
 //
-//                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Intake First Specimen")))
-//                                .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
-//                                .strafeTo(new Vector2d(40,-49))
-//                                .stopAndAdd(new InstantAction(robot::openClaw))
-//                                .waitSeconds(humanPlayerDelay)
-//                                .strafeTo(new Vector2d(40,-52.5),new TranslationalVelConstraint(20))
-//                                .stopAndAdd(new InstantAction(robot::closeClaw))
-//                                .waitSeconds(closeClawDelay)
-//                                .stopAndAdd(new InstantAction(robot::depositSpecimenPos))
-//
-//                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Score First Specimen")))
-//                                .strafeTo(calculateOffset(180,3,prepareToScore).position)
-//                                .stopAndAdd(robot.waitForLiftArmPID(2))
-//                                .strafeTo(calculateOffset(180,3,scoreSpecimen).position,new TranslationalVelConstraint(20))
-//                                .stopAndAdd(new InstantAction(robot::openClaw))
-//                                .strafeTo(prepareToScore.position)
-//                                .stopAndAdd(new InstantAction(robot::lowerClimb))
+                                //Intake Specimen from Human Player
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Intake First Specimen")))
+                                .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
+                                .strafeToLinearHeading(specimenRetrievalPrepare.position,specimenRetrievalPrepare.heading)
+                                .stopAndAdd(new InstantAction(robot::openClaw))
+                                .waitSeconds(humanPlayerDelay)
+                                .strafeToLinearHeading(specimenRetrieval.position, specimenRetrieval.heading,new TranslationalVelConstraint(10))
+                                .stopAndAdd(new InstantAction(robot::closeClaw))
+                                .waitSeconds(closeClawDelay)
+                                .stopAndAdd(new InstantAction(robot::depositSpecimenPos))
+
+                                //Deposit Specimen
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Score First Specimen")))
+                                .strafeTo(prepareToScore.position)
+                                .stopAndAdd(robot.waitForLiftArmPID(2))
+                                .strafeTo(scoreSpecimen.position,new TranslationalVelConstraint(20))
+                                .stopAndAdd(new InstantAction(robot::openClaw))
+                                .strafeTo(prepareToScore.position)
+                                .stopAndAdd(new InstantAction(robot::lowerClimb))
 
 //
+                                //Intake Specimen from Human Player
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Intake Second Specimen")))
+                                .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
+                                .strafeToLinearHeading(specimenRetrievalPrepare.position,specimenRetrievalPrepare.heading)
+                                .stopAndAdd(new InstantAction(robot::openClaw))
+                                .waitSeconds(humanPlayerDelay)
+                                .strafeToLinearHeading(specimenRetrieval.position, specimenRetrieval.heading,new TranslationalVelConstraint(10))
+                                .stopAndAdd(new InstantAction(robot::closeClaw))
+                                .waitSeconds(closeClawDelay)
+                                .stopAndAdd(new InstantAction(robot::depositSpecimenPos))
+
+                                //Deposit Specimen
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Score Second Specimen")))
+                                .strafeTo(prepareToScore.position)
+                                .stopAndAdd(robot.waitForLiftArmPID(2))
+                                .strafeTo(scoreSpecimen.position,new TranslationalVelConstraint(20))
+                                .stopAndAdd(new InstantAction(robot::openClaw))
+                                .strafeTo(prepareToScore.position)
+                                .stopAndAdd(new InstantAction(robot::lowerClimb))
 //
 //                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Intake Second Specimen")))
 //                                .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
@@ -162,6 +225,7 @@ public class SpecimenClipper extends LinearOpMode {
 ////                                .strafeTo(new Vector2d(xSpikeRight,ySpikeLineUp))
 ////                                .strafeTo(new Vector2d(xSpikeRight,ySpikeHumanPlayerPush))
 //
+                                .stopAndAdd(new InstantAction(() -> addTelemetryMessage("Finished!")))
                                 .build()
 
                 )

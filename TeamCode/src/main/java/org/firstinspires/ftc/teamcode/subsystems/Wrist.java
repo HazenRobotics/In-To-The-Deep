@@ -15,8 +15,9 @@ public class Wrist {
         SAMPLE_DEPOSIT, //Sample Deposit Position
         SPECIMEN_INTAKE, //Perpendicular position to Intake Specimen from the Wall
         SPECIMEN_DEPOSIT, //Deposit Specimen
-        PARALLEL_MODE //Parallel position relative to ground from 0-90 degrees
+        PARALLEL_MODE, //Parallel position relative to ground from 0-90 degrees
 
+        VERTICAL_POSITION
 
     }
 
@@ -60,6 +61,7 @@ public class Wrist {
 
         wristPositions.put(WristStates.PARALLEL_MODE, WRIST_PARALLEL);
         wristPositions.put(WristStates.SUB_HOVER, WRIST_PARALLEL + 0.12);
+        wristPositions.put(WristStates.VERTICAL_POSITION, WRIST_PARALLEL);
     }
 
     //------------------------------------------------------------------------------------------

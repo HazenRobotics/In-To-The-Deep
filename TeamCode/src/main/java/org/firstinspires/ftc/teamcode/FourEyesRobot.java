@@ -135,6 +135,7 @@ public class FourEyesRobot extends Mecanum {
      */
     public void VerticalArm(){
         arm.goToPosition(Arm.ArmState.VERTICAL_POSITION);
+        wrist.goToPosition(Wrist.WristStates.VERTICAL_POSITION);
     }
 
     /**

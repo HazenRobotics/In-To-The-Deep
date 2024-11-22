@@ -65,7 +65,7 @@ public class PrimaryLocalizer implements LocalizerInterface, Localizer {
      */
     @Override
     public Pose2d getPosition() {
-        double xPos = 0, yPos = 0, heading = 0, weight = 0;
+        double xPos = 0, yPos = 0, headingX = 0, headingY = 0, weight = 0;
         for(LocalizerInterface sensors: localizers){
             if(sensors.isValid()) {
                 Pose2d pos = sensors.getPosition();//addPose2d(initialPosition, sensors.getPosition());
@@ -76,14 +76,19 @@ public class PrimaryLocalizer implements LocalizerInterface, Localizer {
                 weight += sensors.getWeight();
                 xPos += pos.position.x * (sensors.getWeight());
                 yPos += pos.position.y * (sensors.getWeight());
-                //For some reason, not applying an average calculation gives the correct output?
-                heading += pos.heading.toDouble() * (sensors.getWeight());
+                headingX += Math.cos(pos.heading.toDouble())* (sensors.getWeight());
+                headingY += Math.sin(pos.heading.toDouble())* (sensors.getWeight());
+//                heading += pos.heading.toDouble() * (sensors.getWeight());
+
             }
         }
         //Average based on weight
         xPos /= weight;
         yPos /= weight;
-        heading /= weight;
+        headingX /= weight;
+        headingY /= weight;
+        double heading = Math.atan2(headingY,headingX);
+//        heading /= weight;
         return new Pose2d( xPos , yPos , heading );
     }
 

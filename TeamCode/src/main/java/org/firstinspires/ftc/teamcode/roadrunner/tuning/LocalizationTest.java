@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.roadrunner.tuning;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -14,7 +15,13 @@ import org.firstinspires.ftc.teamcode.roadrunner.TankDrive;
 import org.firstinspires.ftc.teamcode.subsystems.PrimaryLocalizer;
 import org.firstinspires.ftc.teamcode.utils.LimeLightWrapper;
 
+@Config
 public class LocalizationTest extends LinearOpMode {
+
+    public static double StartingPositionX = -12;
+
+    public static double StartingPositionY = -66;
+    public static double StartingPositionH = 180;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -23,7 +30,9 @@ public class LocalizationTest extends LinearOpMode {
             //new Pose2d(8.5,-61, Math.toRadians(-90)
             Pose2d startPosSpecimen = new Pose2d(8.5,-61, Math.toRadians(-90));
             Pose2d startPosSample = new Pose2d(-12,-66,Math.toRadians(180));
-            MecanumDrive drive = new MecanumDrive(hardwareMap, startPosSpecimen);
+            Pose2d customPos = new Pose2d(StartingPositionX,StartingPositionY, Math.toRadians(StartingPositionH));
+
+            MecanumDrive drive = new MecanumDrive(hardwareMap, customPos);
 
             waitForStart();
 

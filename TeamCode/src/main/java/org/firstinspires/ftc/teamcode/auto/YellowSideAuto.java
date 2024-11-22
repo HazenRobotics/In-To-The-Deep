@@ -28,12 +28,12 @@ public class YellowSideAuto extends LinearOpMode {
     double armExtentionLength = 15;
 
     //Locations
-    private Pose2d startPosition = new Pose2d(-12,-66,Math.toRadians(180));
+    private Pose2d startPosition = new Pose2d(-12,-66,Math.toRadians(180.2));
     private Pose2d startPositionFromWall = new Pose2d(-12, -64, Math.toRadians(180));
-    private Pose2d bucketPosition = new Pose2d(-52.5, -57.5,Math.toRadians(225));
+    private Pose2d bucketPosition = new Pose2d(-54.5, -59.5, Math.toRadians(225));
 
 
-    double spikeYOffset = -1.5;
+    double spikeYOffset = 0;
     double spikeXOffset = 3;
     //Yellow Spike Right
     private Pose2d yellowSpikeRightActual = new Pose2d(-41 + spikeXOffset, -28.5 + spikeYOffset, Math.toRadians(160));
@@ -115,7 +115,7 @@ public class YellowSideAuto extends LinearOpMode {
 //                        .stopAndAdd(robot.waitForLiftArmPID(1))
                         .stopAndAdd(new InstantAction(() -> this.addTelemetryMessage("Stow Lift...")))
                         .stopAndAdd(new InstantAction(robot::liftGoToZero))
-                        .stopAndAdd(robot.waitForLiftArmPID(3))
+                        .stopAndAdd(robot.waitForLiftArmPID(2))
 
 
                         //Intake Right Sample
@@ -132,7 +132,7 @@ public class YellowSideAuto extends LinearOpMode {
                         .stopAndAdd(new InstantAction(robot::VerticalArm)) //Override Arm Position
 //                        .stopAndAdd(strafeWithSubsystems(startPosition, bucketPosition))
                         .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-0.3)), bucketPosition.heading)
-                        .stopAndAdd(robot.waitForLiftArmPID(4))
+                        .stopAndAdd(robot.waitForLiftArmPID(5))
                         //Lower Arm
                         .waitSeconds(armScoreTime)
                         .stopAndAdd(new InstantAction(robot::depositSamplePosForward))
@@ -159,15 +159,16 @@ public class YellowSideAuto extends LinearOpMode {
                         .stopAndAdd(new InstantAction(robot::intakeSamplePos))
                         .stopAndAdd(new InstantAction(robot::toggleIntake))
                         .waitSeconds(armRetractTime)
-                        .strafeToLinearHeading(yellowSpikeMiddleIntake.position,yellowSpikeMiddleIntake.heading,
-                                new TranslationalVelConstraint(intakeMaxSpeed))
+                        .lineToX(yellowSpikeMiddleIntake.position.x + 2,new TranslationalVelConstraint(intakeMaxSpeed/2))
+//                        .strafeToLinearHeading(yellowSpikeMiddleIntake.position,yellowSpikeMiddleIntake.heading,
+//                                new TranslationalVelConstraint(intakeMaxSpeed))
 
 
                         .stopAndAdd(new InstantAction(() -> this.addTelemetryMessage("Driving to Bucket...")))
                         .stopAndAdd(new InstantAction(robot::depositSamplePosForward)) //Set new target position
                         .stopAndAdd(new InstantAction(robot::VerticalArm)) //Override Arm Position
-                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-0.6)), bucketPosition.heading)
-                        .stopAndAdd(robot.waitForLiftArmPID(4))
+                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-2)), bucketPosition.heading)
+                        .stopAndAdd(robot.waitForLiftArmPID(3))
                         //Lower Arm
                         .waitSeconds(armScoreTime)
                         .stopAndAdd(new InstantAction(robot::depositSamplePosForward))
@@ -195,15 +196,17 @@ public class YellowSideAuto extends LinearOpMode {
                         .stopAndAdd(new InstantAction(robot::openClaw))
                         .stopAndAdd(new InstantAction(robot::toggleIntake))
                         .waitSeconds(armRetractTime)
-                        .strafeToLinearHeading(yellowSpikeLeftIntake.position,yellowSpikeLeftIntake.heading,
-                                new TranslationalVelConstraint(intakeMaxSpeed))
-                        .strafeTo(calculateOffset(180,armExtentionLength-5, yellowSpikeLeftActual).position)
+                        .lineToX(yellowSpikeLeftIntake.position.x+4,new TranslationalVelConstraint(intakeMaxSpeed/2))
+//                        .strafeToLinearHeading(yellowSpikeLeftIntake.position,yellowSpikeLeftIntake.heading,
+//                                new TranslationalVelConstraint(intakeMaxSpeed))
+                        .lineToX(yellowSpikeLeftIntake.position.x-4)
+//                        .strafeTo(calculateOffset(180,armExtentionLength-5, yellowSpikeLeftActual).position)
 
                         //Deposit Left Spike Mark
                         .stopAndAdd(new InstantAction(() -> this.addTelemetryMessage("Driving to Bucket...")))
                         .stopAndAdd(new InstantAction(robot::depositSamplePosForward)) //Set new target position
                         .stopAndAdd(new InstantAction(robot::VerticalArm)) //Override Arm Position
-                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-1)), bucketPosition.heading)
+                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-3)), bucketPosition.heading)
                         .stopAndAdd(robot.waitForLiftArmPID(4))
 
                         //Lower Arm
