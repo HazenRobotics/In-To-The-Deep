@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
@@ -56,18 +57,22 @@ public class Arm {
 
 
     private Encoder encoder;
-    private DcMotorEx motorPort;
+
     private PIDController pid;
     private int targetPosition;
 
+    private double encoderOffset = 0;
+    private boolean canReset = false;
+    private ElapsedTime resetTimer;
+
     public Arm(HardwareMap hw){
-        this(hw, "armLeft", "armRight", "FLM");
+        this(hw, "armLeft", "armRight", "liftLeft");
     }
     public Arm(HardwareMap hw, String nameLeft, String nameRight, String nameEncoder){
         //Initialize hardware
         armLeft = hw.get(CRServo.class, nameLeft);
         armRight = hw.get(CRServo.class, nameRight);
-        motorPort = hw.get(DcMotorEx.class, nameEncoder);
+        DcMotorEx motorPort = hw.get(DcMotorEx.class, nameEncoder);
         //Resets encoder on start
         motorPort.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorPort.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -78,9 +83,11 @@ public class Arm {
         armRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Pid Setup
-        pid = new PIDController(0.0005,0,0.00006,0.11);
+        pid = new PIDController(0.0004,0,0.00006,0.11);
         pid.setTarget(getPosition());
         currentState = ArmState.STOW_POSITION;
+
+        resetTimer = new ElapsedTime();
 
         armPositions = new HashMap<ArmState,Integer>();
 
@@ -106,8 +113,11 @@ public class Arm {
 
 
     public void goToPosition(ArmState state){
+        if (currentState == ArmState.SAMPLE_INTAKE){
+            resetTimer.reset();
+        }
         currentState = state;
-        targetPosition = armPositions.get(state);
+        targetPosition = armPositions.get(state) + (int) encoderOffset;
         pid.setTarget(targetPosition);
     }
 
@@ -120,10 +130,10 @@ public class Arm {
     }
 
     public int getPosition(){
-        return motorPort.getCurrentPosition();//encoder.getPositionAndVelocity().position;
+        return encoder.getPositionAndVelocity().position;
     }
     public double getVelocity() {
-        return motorPort.getVelocity();//encoder.getPositionAndVelocity().velocity;
+        return encoder.getPositionAndVelocity().velocity;
     }
 
     public double getForwardFeedValue(){
@@ -156,6 +166,14 @@ public class Arm {
         double power = pid.calculate(getPosition(), getForwardFeedValue());
         armLeft.setPower(power);
         armRight.setPower(power);
+
+        if(ArmState.SAMPLE_INTAKE == currentState){
+            if (resetTimer.seconds() > 2){
+                encoderOffset = getPosition() - targetPosition;
+                resetTimer.reset();
+            }
+        }
+
         return power;
 
         
@@ -210,10 +228,12 @@ public class Arm {
                     "Arm current Rotation: %f\n" +
                     "Arm current position: %d\n" +
                     "Arm target position: %d\n" +
+                            "Arm Encoder Offset: %f" +
                     "Arm State: %s\n",
                     this.getRotation(),
                     this.getPosition(),
                     this.targetPosition,
+                    this.encoderOffset,
                     this.currentState);
         }
         return toString();
