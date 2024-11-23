@@ -1,21 +1,30 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drivetrains.Mecanum;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.ActiveIntake;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Claw;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.ParkFlag;
 import org.firstinspires.ftc.teamcode.subsystems.Wrist;
+import org.firstinspires.ftc.teamcode.vision.processors.IntakeStatus;
+import org.firstinspires.ftc.teamcode.vision.processors.SampleProcessor2;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 public class FourEyesRobot extends Mecanum {
     //---------------------------------------------------------------------------------------------
@@ -26,18 +35,22 @@ public class FourEyesRobot extends Mecanum {
     Arm arm;
     Wrist wrist;
     Claw claw;
+    VisionPortal visionPortal;
+    SampleProcessor2 sampleProcessor;
 
     ParkFlag parkFlag;
     ActiveIntake activeIntake;
+
     //---------------------------------------------------------------------------------------------
     //----------------------------------Internal States--------------------------------------------
     //---------------------------------------------------------------------------------------------
-    enum ScoringType{
+    enum ScoringType {
         SAMPLE,
         SPECIMEN
     }
 
     ScoringType currentState;
+
     //---------------------------------------------------------------------------------------------
     //----------------------------------Initialization---------------------------------------------
     //---------------------------------------------------------------------------------------------
@@ -52,13 +65,21 @@ public class FourEyesRobot extends Mecanum {
         parkFlag = new ParkFlag(hardwareMap);
         activeIntake = new ActiveIntake(hardwareMap);
         currentState = ScoringType.SAMPLE;
+        sampleProcessor = new SampleProcessor2();
+        visionPortal = new VisionPortal.Builder()
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .addProcessor(sampleProcessor)
+                .setCameraResolution(new Size(640, 480))
+                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+                .setAutoStopLiveView(true)
+                .build();
     }
 
     /**
      * This is to provide power to servos DURING
      * the begining of START PHASE
      */
-    public void initializePowerStates(){
+    public void initializePowerStates() {
         lift.goToPosition(Lift.LiftStates.ZERO);
         wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
         activeIntake.deactivateIntake();
@@ -82,11 +103,20 @@ public class FourEyesRobot extends Mecanum {
         currentState = ScoringType.SAMPLE;
     }
 
+    public boolean capturedSample() {
+        return activeIntake.capturedSample();
+    }
+
+    public void checkForSample() {
+        checkForSample();
+    }
+
+
     /**
      * Function to set up subsystems to:
      * Preparation to intake SPECIMEN from the Human Player Wall
      */
-    public void intakeSpecimenPos(){
+    public void intakeSpecimenPos() {
         lift.goToPosition(Lift.LiftStates.SPECIMEN_INTAKE);//Lower lift as low as possible
         arm.goToPosition(Arm.ArmState.SPECIMEN_INTAKE);//Use arm to go to an angle to decrease extention length from center of rotation
         wrist.goToPosition(Wrist.WristStates.SPECIMEN_INTAKE);//Use wrist to counter act arm's rotation
@@ -97,7 +127,7 @@ public class FourEyesRobot extends Mecanum {
     /**
      * This is to deposit samples from behind the robot.
      */
-    public void depositSamplePos(){
+    public void depositSamplePos() {
         lift.goToPosition(Lift.LiftStates.SAMPLE_DEPOSIT);//Raises lift to maximum height
         arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT);//Flips arm to go backwards
         wrist.goToPosition(Wrist.WristStates.SAMPLE_DEPOSIT);//Flips wrist to angle
@@ -108,7 +138,7 @@ public class FourEyesRobot extends Mecanum {
     /**
      * This is to deposit samples from the forward direction.
      */
-    public void depositSamplePosForward(){
+    public void depositSamplePosForward() {
         lift.goToPosition(Lift.LiftStates.SAMPLE_DEPOSIT);//Raises lift to maximum height
         arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT_FORWARD);//Flips arm to go backwards
         wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);//Flips wrist to angle
@@ -120,7 +150,7 @@ public class FourEyesRobot extends Mecanum {
      * Function to set up subsystems to:
      * Deposit SPECIMEN into High Bar
      */
-    public void depositSpecimenPos(){
+    public void depositSpecimenPos() {
         lift.goToPosition(Lift.LiftStates.SPECIMEN_DEPOSIT);
 //        arm.goToPosition(Arm.ArmState.BASE_HEIGHT);
 //        wrist.goToPosition(Wrist.WristStates.ParallelMode);
@@ -133,7 +163,7 @@ public class FourEyesRobot extends Mecanum {
     /**
      * Used for auto to temporarily stow Arm
      */
-    public void VerticalArm(){
+    public void VerticalArm() {
         arm.goToPosition(Arm.ArmState.VERTICAL_POSITION);
         wrist.goToPosition(Wrist.WristStates.VERTICAL_POSITION);
     }
@@ -141,7 +171,7 @@ public class FourEyesRobot extends Mecanum {
     /**
      * Used for auto to set Lift to 0
      */
-    public void liftGoToZero(){
+    public void liftGoToZero() {
         lift.goToPosition(Lift.LiftStates.ZERO);
     }
 
@@ -151,6 +181,7 @@ public class FourEyesRobot extends Mecanum {
     public void intakeBackward() {
         activeIntake.reverseIntake();
     }
+
     public void intakeStop() {
         wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
         activeIntake.deactivateIntake();
@@ -158,11 +189,12 @@ public class FourEyesRobot extends Mecanum {
 
 
     //Right bumper
+
     /**
      * If the lift is currently in the Sample Intake State,
      */
-    public void toggleIntake(){
-        if(currentState == ScoringType.SAMPLE){
+    public void toggleIntake() {
+        if (currentState == ScoringType.SAMPLE) {
             //Sample Modes
             //Currently hovering above sub
             if (wrist.getState() == Wrist.WristStates.SUB_HOVER) {
@@ -170,8 +202,7 @@ public class FourEyesRobot extends Mecanum {
                 wrist.goToPosition(Wrist.WristStates.SAMPLE_INTAKE);
                 //Activate intake
                 activeIntake.activateIntake();
-            }
-            else if(wrist.getState() == Wrist.WristStates.SAMPLE_INTAKE){
+            } else if (wrist.getState() == Wrist.WristStates.SAMPLE_INTAKE) {
                 //Switch to Hover mode
                 wrist.goToPosition(Wrist.WristStates.SUB_HOVER);
                 //Activate intake
@@ -181,18 +212,18 @@ public class FourEyesRobot extends Mecanum {
     }
 
     //Left bumper
+
     /**
      * Toggles a deposit system depending on which
      * scoring system is currently active
      */
-    public void toggleDeposit(){
-        switch (currentState){
+    public void toggleDeposit() {
+        switch (currentState) {
             //Toggles Active Intake if Sample scoring is active
             case SAMPLE:
                 if (activeIntake.isRunning()) {
                     activeIntake.deactivateIntake();
-                }
-                else{
+                } else {
                     activeIntake.reverseIntake();
                 }
                 break;
@@ -209,7 +240,7 @@ public class FourEyesRobot extends Mecanum {
     /**
      * Raises the lift to climb the first bar.
      */
-    public void raiseClimb(){
+    public void raiseClimb() {
         arm.goToPosition(Arm.ArmState.STOW_POSITION);
         lift.goToPosition(Lift.LiftStates.CLIMB);
     }
@@ -217,7 +248,7 @@ public class FourEyesRobot extends Mecanum {
     /**
      * Function used to stow subsystems and to lower climb
      */
-    public void lowerClimb(){
+    public void lowerClimb() {
         arm.goToPosition(Arm.ArmState.STOW_POSITION);
         lift.goToPosition(Lift.LiftStates.ZERO);
         wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
@@ -230,7 +261,7 @@ public class FourEyesRobot extends Mecanum {
      * This must be called otherwise subsystem PIDs
      * and values will not update properly
      */
-    public void updatePID(){
+    public void updatePID() {
         lift.update();
         arm.update();
         wrist.wristParallelToGround(arm.getRotation());
@@ -239,7 +270,7 @@ public class FourEyesRobot extends Mecanum {
     }
 
 
-    public void depositBasket(){
+    public void depositBasket() {
         currentState = ScoringType.SAMPLE;
         wrist.goToPosition(Wrist.WristStates.SAMPLE_DEPOSIT);
     }
@@ -250,10 +281,12 @@ public class FourEyesRobot extends Mecanum {
     public boolean isIntaking() {
         return activeIntake.isRunning();
     }
-    public void deactivateIntake(){
+
+    public void deactivateIntake() {
         activeIntake.deactivateIntake();
     }
-    public void activateIntake(){
+
+    public void activateIntake() {
         activeIntake.activateIntake();
     }
 
@@ -261,30 +294,38 @@ public class FourEyesRobot extends Mecanum {
         claw.openClaw();
     }
 
-    public void closeClaw(){
+    public void closeClaw() {
         claw.closeClaw();
     }
 
     public void moveLift(double power) {
         lift.setPosition(power);
     }
+
     public void changeHeightArm(double power) {
         arm.setPosition(power);
     }
-    public void setWristPosition(double power){
+
+    public void setWristPosition(double power) {
         wrist.setPosition(power);
     }
 
-    public void raiseFlag(){
+    public void raiseFlag() {
         parkFlag.raiseFlag();
     }
 
-    public void toggleFlagWave(){parkFlag.toggleWave();}
-    public void turnOnWave(){parkFlag.turnOnWave();}
+    public void toggleFlagWave() {
+        parkFlag.toggleWave();
+    }
+
+    public void turnOnWave() {
+        parkFlag.turnOnWave();
+    }
+
     //---------------------------------------------------------------------------------------------
     //----------------------------------Auto Actions Controls--------------------------------------
     //---------------------------------------------------------------------------------------------
-    public Action autoPID(){
+    public Action autoPID() {
         return new ParallelAction(
                 lift.liftPID(),
                 arm.armPID(),
@@ -292,13 +333,13 @@ public class FourEyesRobot extends Mecanum {
         );
     }
 
-    public Action waitForLiftArmPID(double seconds){
+    public Action waitForLiftArmPID(double seconds) {
         return new WaitForLiftArmPID((long) seconds);
     }
 
     //This needed to be here since it saves the issue of transferring arm rotation to the wrist
     //class and then calling wrist to transfer a new wrist action
-    public class wristParallel implements Action{
+    public class wristParallel implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             wrist.wristParallelToGround(arm.getRotation());
@@ -306,15 +347,30 @@ public class FourEyesRobot extends Mecanum {
         }
     }
 
-    public class WaitForLiftArmPID implements Action{
+    public class DriveTillSample implements Action {
+        IntakeStatus targetColor;
+
+        public DriveTillSample(IntakeStatus color) {
+            targetColor = color;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            return !(sampleProcessor.getIntakeStatus() == targetColor && capturedSample());
+        }
+    }
+
+    public class WaitForLiftArmPID implements Action {
 
         private long maxWaitSeconds;
-        public WaitForLiftArmPID(long maxWaitSeconds){
+
+        public WaitForLiftArmPID(long maxWaitSeconds) {
             this.maxWaitSeconds = System.currentTimeMillis() + maxWaitSeconds * 1000;
         }
 
         /**
          * Returns true if this is is supposed to loop again, returns false to stop
+         *
          * @param telemetryPacket
          * @return
          */
@@ -333,7 +389,7 @@ public class FourEyesRobot extends Mecanum {
                             || Math.abs(lift.getVelocity()) > 20
                             || Math.abs(arm.getTargetPosition() - arm.getPosition()) > 50
                             || Math.abs(arm.getVelocity()) > 20
-                            );
+                    );
         }
     }
 
@@ -342,16 +398,16 @@ public class FourEyesRobot extends Mecanum {
     //----------------------------------Helper Functions-------------------------------------------
     //---------------------------------------------------------------------------------------------
     @SuppressLint("DefaultLocale")
-    public String toString(){
+    public String toString() {
         return String.format(
                 lift.toString(true) + "\n" +
-                arm.toString(true) +  "\n" +
-                wrist.toString() + "\n " +
-                activeIntake. toString() + "\n" +
-                claw.toString() + "\n" +
-                parkFlag.toString() + "\n" +
-                super.getDriveTrainCurrent() + "\n" +
-                "Current Scoring Type: %s\n",
+                        arm.toString(true) + "\n" +
+                        wrist.toString() + "\n " +
+                        activeIntake.toString() + "\n" +
+                        claw.toString() + "\n" +
+                        parkFlag.toString() + "\n" +
+                        super.getDriveTrainCurrent() + "\n" +
+                        "Current Scoring Type: %s\n",
                 currentState
         );
     }

@@ -17,7 +17,6 @@ public class SampleProcessor2 extends OpenCvPipeline implements VisionProcessor 
     public static final int START_Y = 380;
     public static final int FINISH_Y = 480;
     public static final int THRESHOLD_FOR_COLOR = 150;
-    private final Telemetry telemetry;
     private int redPixels = 0;
     private int yellowPixels = 0;
     private int bluePixels = 0;
@@ -28,9 +27,6 @@ public class SampleProcessor2 extends OpenCvPipeline implements VisionProcessor 
 
     }
 
-    public SampleProcessor2(Telemetry telemetry) {
-        this.telemetry = telemetry;
-    }
 
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos) {
@@ -68,13 +64,6 @@ public class SampleProcessor2 extends OpenCvPipeline implements VisionProcessor 
                 }
             }
         }
-        telemetry.addData("Intake", getIntakeString());
-        telemetry.addData("RedPixels", redPixels);
-        telemetry.addData("BluePixels", bluePixels);
-        telemetry.addData("YellowPixels", yellowPixels);
-        telemetry.addData("NothingPixels", nothingPixels);
-
-        telemetry.update();
 
         return input;
     }
@@ -104,6 +93,3 @@ public class SampleProcessor2 extends OpenCvPipeline implements VisionProcessor 
     }
 }
 
-enum IntakeStatus {
-    RED, BLUE, YELLOW, NOTHING
-}
