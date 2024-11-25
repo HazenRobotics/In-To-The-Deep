@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="Clipper")
+//@Autonomous(name="Clipper")
 public class SpecimenClipper extends LinearOpMode {
 
 

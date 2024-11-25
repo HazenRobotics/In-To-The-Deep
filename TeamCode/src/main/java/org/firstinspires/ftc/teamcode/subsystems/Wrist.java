@@ -52,8 +52,8 @@ public class Wrist {
 
 
         //Intake Positions
-        wristPositions.put(WristStates.SAMPLE_INTAKE, WRIST_PARALLEL - 0.015); //0.694
-        wristPositions.put(WristStates.SPECIMEN_INTAKE, WRIST_PARALLEL - 0.25); //Set 90 degrees off from parallel
+        wristPositions.put(WristStates.SAMPLE_INTAKE, WRIST_PARALLEL - 0.012); //0.694
+        wristPositions.put(WristStates.SPECIMEN_INTAKE, clamp((WRIST_PARALLEL - 0.25),0,1)); //Set 90 degrees off from parallel
 
         //Deposit Positions
         wristPositions.put(WristStates.SAMPLE_DEPOSIT, WRIST_PARALLEL + 0.174);//0.392
@@ -119,7 +119,7 @@ public class Wrist {
         wristPositions.put(currentState, newPos);
 
         if (currentState != WristStates.PARALLEL_MODE) {
-            wrist.setPosition(newPos);
+            wrist.setPosition(clamp(newPos,0,1));
         }
     }
 

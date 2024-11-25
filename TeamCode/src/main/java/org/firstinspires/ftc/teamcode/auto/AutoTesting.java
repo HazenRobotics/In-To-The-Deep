@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.vision.processors.SampleProcessor2;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@Autonomous(name="Auto Tester")
+//@Autonomous(name="Auto Tester")
 public class AutoTesting extends LinearOpMode {
 
     private Pose2d startPosition = new Pose2d(-12,-64,Math.toRadians(90));

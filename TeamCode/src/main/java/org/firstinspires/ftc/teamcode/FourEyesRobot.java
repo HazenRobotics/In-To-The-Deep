@@ -79,6 +79,7 @@ public class FourEyesRobot extends Mecanum {
         arm.goToPosition(Arm.ArmState.SAMPLE_INTAKE);
         wrist.goToPosition(Wrist.WristStates.SUB_HOVER);
         activeIntake.deactivateIntake();
+        claw.closeClaw();
         currentState = ScoringType.SAMPLE;
     }
 
@@ -265,6 +266,10 @@ public class FourEyesRobot extends Mecanum {
         claw.closeClaw();
     }
 
+    public void openWideClaw(){
+        claw.openClawWide();
+    }
+
     public void moveLift(double power) {
         lift.setPosition(power);
     }
@@ -278,9 +283,17 @@ public class FourEyesRobot extends Mecanum {
     public void raiseFlag(){
         parkFlag.raiseFlag();
     }
+    public void stowFlag(){parkFlag.stowFlag();}
 
     public void toggleFlagWave(){parkFlag.toggleWave();}
     public void turnOnWave(){parkFlag.turnOnWave();}
+
+    public void resetLift(){
+        lift.resetLift();
+    }
+    public void resetArmStartOffset(){
+        arm.resetArmOffset();
+    }
     //---------------------------------------------------------------------------------------------
     //----------------------------------Auto Actions Controls--------------------------------------
     //---------------------------------------------------------------------------------------------

@@ -62,7 +62,7 @@ public class Arm {
     private int targetPosition;
 
     private double encoderOffset = 0;
-    private boolean canReset = false;
+    private double encoderOffset_starting = 0;
     private ElapsedTime resetTimer;
 
     public Arm(HardwareMap hw){
@@ -98,7 +98,7 @@ public class Arm {
 
         //Intake Positions
         armPositions.put(ArmState.SPECIMEN_INTAKE, 3400);
-        armPositions.put(ArmState.SAMPLE_INTAKE,3170);
+        armPositions.put(ArmState.SAMPLE_INTAKE,3300);
 
         //Stow Positions
         armPositions.put(ArmState.STOW_POSITION, 200);
@@ -113,11 +113,12 @@ public class Arm {
 
 
     public void goToPosition(ArmState state){
-        if (currentState == ArmState.SAMPLE_INTAKE){
-            resetTimer.reset();
-        }
         currentState = state;
-        targetPosition = armPositions.get(state) + (int) encoderOffset;
+        targetPosition = armPositions.get(state) + (int) encoderOffset_starting;
+        if (currentState != ArmState.SAMPLE_INTAKE){
+            targetPosition += (int) encoderOffset;
+        }
+
         pid.setTarget(targetPosition);
     }
 
@@ -167,8 +168,8 @@ public class Arm {
         armLeft.setPower(power);
         armRight.setPower(power);
 
-        if(ArmState.SAMPLE_INTAKE == currentState){
-            if (resetTimer.seconds() > 2){
+        if(ArmState.SAMPLE_INTAKE == currentState || ArmState.SPECIMEN_INTAKE == currentState){
+            if (encoder.getPositionAndVelocity().velocity < 20 && resetTimer.seconds() > 0.5){
                 encoderOffset = getPosition() - targetPosition;
                 resetTimer.reset();
             }
@@ -199,6 +200,10 @@ public class Arm {
     public void setPosition(double power){
         targetPosition +=  (power * ARM_SPEED);
         pid.setTarget(targetPosition);
+    }
+
+    public void resetArmOffset(){
+        encoderOffset_starting = encoder.getPositionAndVelocity().position;
     }
 
     //------------------------------------------------------------------------------------------

@@ -186,7 +186,8 @@ public class MeepMeepTesting {
                 .splineTo(innerSampleLineUp.position,innerSampleLineUp.heading.toDouble()-Math.toRadians(180))
             //Drop off inner Sample to Human Player
                 //.afterDisp()//After traveling some path to pick up a sample, raise lift
-                .lineToX(36)
+//                .lineToX(36)
+                        .splineTo(innerSampleLineUp.position.plus(new Vector2d(12,4)),0)
                 .splineTo(bucketDropOff.position,bucketDropOff.heading)
                 .waitSeconds(0.3)
 
@@ -216,12 +217,12 @@ public class MeepMeepTesting {
                 //Score Specimens
                 //Score Specimen 1
 //                .setReversed(true)
-                .strafeTo(new Vector2d(40,-60))
-                .waitSeconds(0.5)
+                .splineToConstantHeading(new Vector2d(40,-60),Math.toRadians(-90))
+//                .waitSeconds(0.5)
                 .lineToY(-62)
                 .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(0,-36),Math.toRadians(-90))
-                .waitSeconds(0.5)
+                .splineTo(new Vector2d(0,-36),Math.toRadians(90))
+//                .waitSeconds(0.5)
                 .lineToY(-24)
 
                 //Score Specimen 2
@@ -231,7 +232,7 @@ public class MeepMeepTesting {
                 .lineToY(-62)
                 .setReversed(true)
                 .strafeToLinearHeading(new Vector2d(0,-36),Math.toRadians(-90))
-                .waitSeconds(0.5)
+//                .waitSeconds(0.5)
                 .lineToY(-24)
 
                 //Score Specimen 3

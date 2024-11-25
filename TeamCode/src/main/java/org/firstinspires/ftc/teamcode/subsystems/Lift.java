@@ -53,6 +53,8 @@ public class Lift {
 
     private int targetPosition;
 
+    private int liftOffset = 0;
+
     private HardwareMap hw;
     private final Encoder encoder;
     private String encoderName;
@@ -105,7 +107,7 @@ public class Lift {
         liftPositions.put(LiftStates.SPECIMEN_INTAKE,(int) (0.31860465 * MAX_HEIGHT_POSITION));
 
         //Deposit Positions
-        liftPositions.put(LiftStates.SPECIMEN_DEPOSIT, (int) (0.455814 * MAX_HEIGHT_POSITION));
+        liftPositions.put(LiftStates.SPECIMEN_DEPOSIT, (int) (0.525581 * MAX_HEIGHT_POSITION));
         liftPositions.put(LiftStates.SAMPLE_DEPOSIT, MAX_HEIGHT_POSITION);
 
         //Climb/Stow Positions
@@ -127,7 +129,7 @@ public class Lift {
      */
     public void goToPosition(LiftStates state){
         currentState = state;
-        targetPosition = liftPositions.get(state);
+        targetPosition = liftPositions.get(state) + liftOffset;
         pid.setTarget(targetPosition);
     }
 
@@ -218,6 +220,10 @@ public class Lift {
         port.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         currentState = LiftStates.ZERO;
         targetPosition = 0;
+    }
+
+    public void resetLiftOffset(){
+        liftOffset = encoder.getPositionAndVelocity().position;
     }
 
     //-----------------------------------------------------------------------------------------
