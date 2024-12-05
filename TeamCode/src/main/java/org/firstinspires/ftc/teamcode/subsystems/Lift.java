@@ -33,9 +33,12 @@ public class Lift {
         SAMPLE_INTAKE, // Lift at Submersible Intake Height
 
         SPECIMEN_DEPOSIT, //Specimen Scoring Height
+        SPECIMEN_DEPOSIT_FORWARD, //Specimen Forward Scoring Height
         SPECIMEN_INTAKE, //Specimen Intake Height
         ZERO, //Lift at Lowest Possible Height
-        CLIMB //Preparing to Climb
+        CLIMB, //Preparing to Climb
+
+        CLEARANCE_FOR_ULTRASONIC //Raise lift for ultra sonic clearance
 
     }
 
@@ -60,6 +63,7 @@ public class Lift {
     private String encoderName;
     private final PIDController pid;
 
+    private boolean autoPIDActive = true;
 
     //-----------------------------------------------------------------------------------------
     //----------------------------------Initialization-----------------------------------------
@@ -102,17 +106,24 @@ public class Lift {
         //Aim for at least 6 decimal places, the more the better.
 
 
+        setLiftPositions();
+    }
+
+    public void setLiftPositions(){
         //Intake Positions
         liftPositions.put(LiftStates.SAMPLE_INTAKE, (int) (0.0163934 * MAX_HEIGHT_POSITION));
         liftPositions.put(LiftStates.SPECIMEN_INTAKE,(int) (0.31860465 * MAX_HEIGHT_POSITION));
 
         //Deposit Positions
         liftPositions.put(LiftStates.SPECIMEN_DEPOSIT, (int) (0.525581 * MAX_HEIGHT_POSITION));
-        liftPositions.put(LiftStates.SAMPLE_DEPOSIT, MAX_HEIGHT_POSITION);
+        liftPositions.put(LiftStates.SAMPLE_DEPOSIT, (int) (0.99 * MAX_HEIGHT_POSITION));
+        liftPositions.put(LiftStates.SPECIMEN_DEPOSIT_FORWARD,(int) (0.232558 * MAX_HEIGHT_POSITION));
 
         //Climb/Stow Positions
         liftPositions.put(LiftStates.ZERO, 0);
         liftPositions.put(LiftStates.CLIMB, (int) (0.524590 * MAX_HEIGHT_POSITION));
+
+        liftPositions.put(LiftStates.CLEARANCE_FOR_ULTRASONIC, (int) (0.069767 * MAX_HEIGHT_POSITION));
     }
 
 
@@ -224,6 +235,7 @@ public class Lift {
 
     public void resetLiftOffset(){
         liftOffset = encoder.getPositionAndVelocity().position;
+        setLiftPositions();
     }
 
     //-----------------------------------------------------------------------------------------
@@ -279,13 +291,16 @@ public class Lift {
         return new LiftPID();
     }
 
+    public void setAutoPIDActive(boolean active){
+        autoPIDActive = active;
+    }
 
     public class LiftPID implements  Action{
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             update();
-            return true;
+            return autoPIDActive;
         }
     }
 

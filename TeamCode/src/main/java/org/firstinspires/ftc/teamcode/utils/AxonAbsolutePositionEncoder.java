@@ -1,7 +1,7 @@
 /*
 Copied from:
 https://github.com/HazenRobotics/center-stage/blob/main/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/subsystems/AxonSwervePod.java
-Originally written by Camden Harris
+Originally By Camden Harris
  */
 
 package org.firstinspires.ftc.teamcode.utils;

@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -22,8 +23,8 @@ public class FourEyesRobot extends Mecanum {
     //----------------------------------Subsystem Objects------------------------------------------
     //---------------------------------------------------------------------------------------------
     HardwareMap hardwareMap;
-    Lift lift;
-    Arm arm;
+    public Lift lift;
+    public Arm arm;
     Wrist wrist;
     Claw claw;
 
@@ -38,6 +39,8 @@ public class FourEyesRobot extends Mecanum {
     }
 
     ScoringType currentState;
+
+    private boolean wristAutoPIDActive = true;
     //---------------------------------------------------------------------------------------------
     //----------------------------------Initialization---------------------------------------------
     //---------------------------------------------------------------------------------------------
@@ -127,6 +130,14 @@ public class FourEyesRobot extends Mecanum {
 //        wrist.goToPosition(Wrist.WristStates.ParallelMode);
         arm.goToPosition(Arm.ArmState.SPECIMEN_DEPOSIT);
         wrist.goToPosition(Wrist.WristStates.SPECIMEN_DEPOSIT);
+        claw.closeClaw();
+        currentState = ScoringType.SPECIMEN;
+    }
+
+    public void depositSpecimenPosForward(){
+        lift.goToPosition(Lift.LiftStates.SPECIMEN_DEPOSIT_FORWARD);
+        arm.goToPosition(Arm.ArmState.SPECIMEN_DEPOSIT_FORWARD);
+        wrist.goToPosition(Wrist.WristStates.SPECIMEN_DEPOSIT_FORWARD);
         claw.closeClaw();
         currentState = ScoringType.SPECIMEN;
     }
@@ -298,11 +309,22 @@ public class FourEyesRobot extends Mecanum {
     //----------------------------------Auto Actions Controls--------------------------------------
     //---------------------------------------------------------------------------------------------
     public Action autoPID(){
+        lift.setAutoPIDActive(true);
+        arm.setAutoPIDActive(true);
+        wristAutoPIDActive = true;
         return new ParallelAction(
                 lift.liftPID(),
                 arm.armPID(),
                 new wristParallel()
         );
+    }
+
+    public InstantAction endPID(){
+        return new InstantAction(() -> {
+            lift.setAutoPIDActive(false);
+            arm.setAutoPIDActive(false);
+            wristAutoPIDActive = false;
+        });
     }
 
     public Action waitForLiftArmPID(double seconds){
@@ -315,7 +337,7 @@ public class FourEyesRobot extends Mecanum {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             wrist.wristParallelToGround(arm.getRotation());
-            return true;
+            return wristAutoPIDActive;
         }
     }
 
@@ -342,10 +364,10 @@ public class FourEyesRobot extends Mecanum {
              */
 
             return System.currentTimeMillis() < this.maxWaitSeconds &&
-                    (Math.abs(lift.getTargetPosition() - lift.getPosition()) > 50
-                            || Math.abs(lift.getVelocity()) > 20
-                            || Math.abs(arm.getTargetPosition() - arm.getPosition()) > 50
-                            || Math.abs(arm.getVelocity()) > 20
+                    (Math.abs(lift.getTargetPosition() - lift.getPosition()) > 100
+                            || Math.abs(lift.getVelocity()) > 50
+                            || Math.abs(arm.getTargetPosition() - arm.getPosition()) > 100
+                            || Math.abs(arm.getVelocity()) > 50
                             );
         }
     }

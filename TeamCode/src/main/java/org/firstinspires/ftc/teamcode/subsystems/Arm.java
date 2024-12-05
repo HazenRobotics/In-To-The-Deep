@@ -41,6 +41,7 @@ public class Arm {
         SAMPLE_DEPOSIT, //Deposit Sample (Backward)
         SAMPLE_DEPOSIT_FORWARD, //Deposit Sample Forward
         SPECIMEN_DEPOSIT, //Deposit Specimen
+        SPECIMEN_DEPOSIT_FORWARD,
         SPECIMEN_INTAKE, //Position to intake Specimen
         STOW_POSITION, //Default Stowed Position
         VERTICAL_POSITION //Align Arm with Lift
@@ -65,6 +66,8 @@ public class Arm {
     private double encoderOffset_starting = 0;
     private ElapsedTime resetTimer;
 
+    private boolean autoPIDActive = true;
+
     public Arm(HardwareMap hw){
         this(hw, "armLeft", "armRight", "liftLeft");
     }
@@ -83,7 +86,7 @@ public class Arm {
         armRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Pid Setup
-        pid = new PIDController(0.0004,0,0.00006,0.11);
+        pid = new PIDController(0.0005,0,0.00006,0.11);
         pid.setTarget(getPosition());
         currentState = ArmState.STOW_POSITION;
 
@@ -91,21 +94,25 @@ public class Arm {
 
         armPositions = new HashMap<ArmState,Integer>();
 
+        setArmPositions();
+    }
+
+    public void setArmPositions(){
         //Deposit Positions
         armPositions.put(ArmState.SAMPLE_DEPOSIT, -220);
         armPositions.put(ArmState.SPECIMEN_DEPOSIT, -90);
         armPositions.put(ArmState.SAMPLE_DEPOSIT_FORWARD, 2000);
+        armPositions.put(ArmState.SPECIMEN_DEPOSIT_FORWARD,1600);
 
         //Intake Positions
-        armPositions.put(ArmState.SPECIMEN_INTAKE, 3400);
+        //Essentially hardstop forward positions which will reset the arm periodically to prevent drift
+        armPositions.put(ArmState.SPECIMEN_INTAKE, 3300);
         armPositions.put(ArmState.SAMPLE_INTAKE,3300);
 
         //Stow Positions
         armPositions.put(ArmState.STOW_POSITION, 200);
         armPositions.put(ArmState.VERTICAL_POSITION,1000);
-
     }
-
 
     //------------------------------------------------------------------------------------------
     //----------------------------------Go To Position----------------------------------------
@@ -118,7 +125,6 @@ public class Arm {
         if (currentState != ArmState.SAMPLE_INTAKE){
             targetPosition += (int) encoderOffset;
         }
-
         pid.setTarget(targetPosition);
     }
 
@@ -174,10 +180,7 @@ public class Arm {
                 resetTimer.reset();
             }
         }
-
         return power;
-
-        
     }
 
     /**
@@ -199,11 +202,13 @@ public class Arm {
     }
     public void setPosition(double power){
         targetPosition +=  (power * ARM_SPEED);
+        armPositions.put(currentState, targetPosition);
         pid.setTarget(targetPosition);
     }
 
     public void resetArmOffset(){
         encoderOffset_starting = encoder.getPositionAndVelocity().position;
+        setArmPositions();
     }
 
     //------------------------------------------------------------------------------------------
@@ -251,11 +256,15 @@ public class Arm {
         return new ArmPID();
     }
 
+    public void setAutoPIDActive(boolean active){
+        autoPIDActive = active;
+    }
+
     public class ArmPID implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             update();
-            return true;
+            return autoPIDActive;
         }
     }
 
