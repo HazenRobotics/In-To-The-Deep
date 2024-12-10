@@ -30,7 +30,7 @@ public class YellowSideAuto extends LinearOpMode {
     //Locations
     private Pose2d startPosition = new Pose2d(-12,-66,Math.toRadians(180));
     private Pose2d startPositionFromWall = new Pose2d(-12, -64, Math.toRadians(180));
-    private Pose2d bucketPosition = new Pose2d(-54.5, -59.5, Math.toRadians(225));
+    private Pose2d bucketPosition = new Pose2d(-52.5, -57.5, Math.toRadians(225));
 
 
     double spikeYOffset = 0;
@@ -42,14 +42,14 @@ public class YellowSideAuto extends LinearOpMode {
     private Pose2d yellowSpikeRightIntake = calculateOffset(170, armExtentionLength-10,yellowSpikeRightActual);
 
     //Yellow Spike Middle
-    private Pose2d yellowSpikeMiddleActual = new Pose2d(-50+ spikeXOffset, -27.5 + spikeYOffset, Math.toRadians(180));
+    private Pose2d yellowSpikeMiddleActual = new Pose2d(-50+ spikeXOffset, -26.5 + spikeYOffset, Math.toRadians(180));
     private Pose2d yellowSpikeMiddleLineUp = calculateOffset(180,armExtentionLength, yellowSpikeMiddleActual);
 
     private Pose2d yellowSpikeMiddleIntake = calculateOffset(180,armExtentionLength-10, yellowSpikeMiddleActual);
 
 
     //Yellow Spike Left
-    private Pose2d yellowSpikeLeftActual = new Pose2d(-59+ spikeXOffset, -27.5 + spikeYOffset, Math.toRadians(180));
+    private Pose2d yellowSpikeLeftActual = new Pose2d(-59+ spikeXOffset, -27 + spikeYOffset, Math.toRadians(180));
 
     private Pose2d yellowSpikeLeftLineUp = calculateOffset(180, armExtentionLength, yellowSpikeLeftActual);
     private Pose2d yellowSpikeLeftIntake = calculateOffset(180,armExtentionLength-10, yellowSpikeLeftActual);
@@ -131,7 +131,7 @@ public class YellowSideAuto extends LinearOpMode {
                         .stopAndAdd(new InstantAction(robot::depositSamplePosForward)) //Set new target position
                         .stopAndAdd(new InstantAction(robot::VerticalArm)) //Override Arm Position
 //                        .stopAndAdd(strafeWithSubsystems(startPosition, bucketPosition))
-                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-0.3)), bucketPosition.heading)
+                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0.5,-0.6)), bucketPosition.heading)
                         .stopAndAdd(robot.waitForLiftArmPID(5))
                         //Lower Arm
                         .waitSeconds(armScoreTime)
@@ -167,7 +167,7 @@ public class YellowSideAuto extends LinearOpMode {
                         .stopAndAdd(new InstantAction(() -> this.addTelemetryMessage("Driving to Bucket...")))
                         .stopAndAdd(new InstantAction(robot::depositSamplePosForward)) //Set new target position
                         .stopAndAdd(new InstantAction(robot::VerticalArm)) //Override Arm Position
-                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-2)), bucketPosition.heading)
+                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0.5,-0.6)), bucketPosition.heading)
                         .stopAndAdd(robot.waitForLiftArmPID(3))
                         //Lower Arm
                         .waitSeconds(armScoreTime)
@@ -193,7 +193,7 @@ public class YellowSideAuto extends LinearOpMode {
 
                         .strafeToLinearHeading(yellowSpikeLeftLineUp.position, yellowSpikeLeftLineUp.heading)
                         .stopAndAdd(new InstantAction(robot::intakeSamplePos))
-                        .stopAndAdd(new InstantAction(robot::openClaw))
+//                        .stopAndAdd(new InstantAction(robot::openClaw))
                         .stopAndAdd(new InstantAction(robot::toggleIntake))
                         .waitSeconds(armRetractTime)
                         .lineToX(yellowSpikeLeftIntake.position.x+4,new TranslationalVelConstraint(intakeMaxSpeed/2))
@@ -204,10 +204,13 @@ public class YellowSideAuto extends LinearOpMode {
 
                         //Deposit Left Spike Mark
                         .stopAndAdd(new InstantAction(() -> this.addTelemetryMessage("Driving to Bucket...")))
-                        .stopAndAdd(new InstantAction(robot::depositSamplePosForward)) //Set new target position
-                        .stopAndAdd(new InstantAction(robot::VerticalArm)) //Override Arm Position
-                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-3)), bucketPosition.heading)
+                        .stopAndAdd(new InstantAction(robot::VerticalArm))
+                        .afterTime(0.1,new InstantAction(robot::depositSamplePosForward)) //Set new target position
+                        .afterTime(0.15,new InstantAction(robot::VerticalArm)) //Override Arm Position
+                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0,-2)), bucketPosition.heading)
                         .stopAndAdd(robot.waitForLiftArmPID(4))
+
+
 
                         //Lower Arm
                         .waitSeconds(armScoreTime)

@@ -15,6 +15,7 @@ public class Wrist {
         SAMPLE_DEPOSIT, //Sample Deposit Position
         SPECIMEN_INTAKE, //Perpendicular position to Intake Specimen from the Wall
         SPECIMEN_DEPOSIT, //Deposit Specimen
+        SPECIMEN_DEPOSIT_FORWARD, //Deposit Specimen Forward
         PARALLEL_MODE, //Parallel position relative to ground from 0-90 degrees
 
         VERTICAL_POSITION
@@ -52,12 +53,13 @@ public class Wrist {
 
 
         //Intake Positions
-        wristPositions.put(WristStates.SAMPLE_INTAKE, WRIST_PARALLEL - 0.015); //0.694
-        wristPositions.put(WristStates.SPECIMEN_INTAKE, WRIST_PARALLEL - 0.25); //Set 90 degrees off from parallel
+        wristPositions.put(WristStates.SAMPLE_INTAKE, WRIST_PARALLEL - 0.012); //0.694
+        wristPositions.put(WristStates.SPECIMEN_INTAKE, clamp((WRIST_PARALLEL - 0.25),0,1)); //Set 90 degrees off from parallel
 
         //Deposit Positions
         wristPositions.put(WristStates.SAMPLE_DEPOSIT, WRIST_PARALLEL + 0.174);//0.392
         wristPositions.put(WristStates.SPECIMEN_DEPOSIT, WRIST_PARALLEL + 0.02);//0.24
+        wristPositions.put(WristStates.SPECIMEN_DEPOSIT_FORWARD, WRIST_PARALLEL - 0.184);//0.034
 
         wristPositions.put(WristStates.PARALLEL_MODE, WRIST_PARALLEL);
         wristPositions.put(WristStates.SUB_HOVER, WRIST_PARALLEL + 0.12);
@@ -119,7 +121,7 @@ public class Wrist {
         wristPositions.put(currentState, newPos);
 
         if (currentState != WristStates.PARALLEL_MODE) {
-            wrist.setPosition(newPos);
+            wrist.setPosition(clamp(newPos,0,1));
         }
     }
 

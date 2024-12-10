@@ -6,7 +6,6 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TrajectoryBuilder;
@@ -18,7 +17,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.FourEyesRobot;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.vision.processors.IntakeStatus;
 import org.firstinspires.ftc.teamcode.vision.processors.SampleProcessor2;
 import org.firstinspires.ftc.vision.VisionPortal;
 
@@ -26,7 +24,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 public class AutoTesting extends LinearOpMode {
 
     private Pose2d startPosition = new Pose2d(-12,-64,Math.toRadians(90));
-    private VisionPortal visionPortal;
+
 
 
     @Override
@@ -36,31 +34,34 @@ public class AutoTesting extends LinearOpMode {
 
         FourEyesRobot robot = new FourEyesRobot(hardwareMap);
 
-        SampleProcessor2 visionProc = new SampleProcessor2();
-        visionPortal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get( WebcamName.class, "Webcam 1"))
-                .addProcessor(visionProc)
-                .setCameraResolution(new Size(640, 480))
-                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
-                .setAutoStopLiveView(true)
-                .build();
+//        SampleProcessor2 visionProc = new SampleProcessor2(telemetry);
+//        VisionPortal visionPortal = new VisionPortal.Builder()
+//                .setCamera(hardwareMap.get( WebcamName.class, "Webcam 1"))
+//                .addProcessor(visionProc)
+//                .setCameraResolution(new Size(640, 480))
+//                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+//                .setAutoStopLiveView(true)
+//                .build();
 
         waitForStart();
 
         Actions.runBlocking(new ParallelAction(
                 robot.autoPID(),
-                new SequentialAction(
                 roadRunner.actionBuilder(startPosition)
-//                        .strafeTo( new Vector2d(-12,-40))
-                        .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
-                        .waitSeconds(5)
+                        .stopAndAdd(new InstantAction(robot::depositSamplePosForward))
                         .build()
-        )));
+        ));
 
-        while (visionProc.getIntakeStatus()==IntakeStatus.YELLOW && robot.capturedSample()) {
-            robot.checkForSample();
-        }
-        roadRunner.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
+        //
+//        Actions.runBlocking(new ParallelAction(
+//                robot.autoPID(),
+//                new SequentialAction(
+//                roadRunner.actionBuilder(startPosition)
+////                        .strafeTo( new Vector2d(-12,-40))
+//                        .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
+//                        .waitSeconds(5)
+//                        .build()
+//        )));
 //        TrajectoryActionBuilder res = roadRunner.actionBuilder(startPosition)
 //                .strafeTo( new Vector2d(-12,-40))
 //

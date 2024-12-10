@@ -20,8 +20,8 @@ public class SparkOdo implements LocalizerInterface {
     //Y+ Axis --> Left
 
     //Position offset of the Spark:
-    public static double X_OFFSET = 2; //Inches
-    public static double Y_OFFSET = 0.6; //Inches
+    public static double X_OFFSET = 2.5; //Inches
+    public static double Y_OFFSET = 0; //Inches
 
     public static double HEADING_OFFSET = 180; //Degrees
 

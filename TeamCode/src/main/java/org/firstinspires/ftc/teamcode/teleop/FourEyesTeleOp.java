@@ -41,6 +41,8 @@ public class FourEyesTeleOp extends LinearOpMode {
                 controller2.dpad_up,
                 controller2.dpad_down,
                 controller2.left_bumper,
+                controller2.dpad_left,
+                controller2.dpad_right
         };
         ElapsedTime timer = new ElapsedTime();
 
@@ -94,6 +96,19 @@ public class FourEyesTeleOp extends LinearOpMode {
                     fourEyesRobot.turnOnWave();
                 }
             }
+            if (binding2[7].onPress()){
+                fourEyesRobot.raiseFlag();
+            }
+            if(binding2[8].onPress()){
+                fourEyesRobot.stowFlag();
+            }
+
+            if (controller2.left_trigger.getTriggerValue() > 0.9 && controller2.right_trigger.getTriggerValue() > 0.9){
+                fourEyesRobot.resetLift();
+                fourEyesRobot.resetArmStartOffset();
+                gamepad2.rumble(1000);
+            }
+
             //End game warning
             if (timer.seconds() > 90){
                 gamepad1.rumble(1000);
