@@ -85,19 +85,57 @@ public class UltrasonicSensor {
         return maxVoltage;
     }
 
+    /**
+     * @return Voltage from analog encoder pin
+     */
     public double getVoltage(){
         return distanceSensor.getVoltage();
     }
 
+    /**
+     * @return Calculated distance including distance offsets.
+     */
     public double getDistance(){
-        return getVoltage() * 520 / getMaxVoltage() - distanceOffset;
+        return getRawDistance() - distanceOffset;
     }
 
+    /**
+     * @return The raw calcualted distance (in Centimeters)
+     */
     public double getRawDistance(){
         return getVoltage() * 520 / getMaxVoltage();
     }
 
     public double getDistanceInches(){
         return getDistance() * CM_TO_INCHES;
+    }
+
+
+    /**
+     * Returns an estimated measured distance based on the following parameters
+     * @param defaultVal Default return value
+     * @param minVal Minimum acceptable value
+     * @param maxVal Maximum acceptable value
+     * @param sampleAttempts Number of measurements made
+     * @return Calculated distance from surface
+     */
+    public double distanceCheck(double defaultVal, double minVal, double maxVal, double sampleAttempts){
+        int numOfAcceptableVals = 0;
+        double totalVal = 0;
+        for(int i=0; i<sampleAttempts; i++) {
+            double tempCheck = this.getDistanceInches();
+            //Acceptable range for distance sensor
+            if ( minVal < tempCheck && tempCheck < maxVal){
+                totalVal += tempCheck;
+                numOfAcceptableVals++;
+            }
+        }
+        //Ensures that at least 10% of the values are valid
+        //before returning the calculated distance
+        if (numOfAcceptableVals > (sampleAttempts/10)){
+            return totalVal / numOfAcceptableVals;
+        }
+        //If the sample data fails to meet the minimum 10% threshold, return the default measurement
+        return defaultVal;
     }
 }

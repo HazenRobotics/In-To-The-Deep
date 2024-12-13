@@ -79,8 +79,8 @@ public class ActiveIntake {
 
     public void checkForSample(){
         long currentTime = System.currentTimeMillis();
-        //This only updates if the sample is captured every 0.2 seconds
-        if (currentTime > lastTime + 200){
+        //This only updates if the sample is captured every 0.05 seconds
+        if (currentTime > lastTime + 50){
             sampleCaptured = capturedSample();
         }
     }
@@ -90,7 +90,7 @@ public class ActiveIntake {
         long currentTime = System.currentTimeMillis();
 
         //Angle velocity in degrees/seconds
-        angleVel = Math.abs((currentAngle - lastAngle)) * 5;
+        angleVel = Math.abs((currentAngle - lastAngle)) * 1000 / (currentTime - lastTime);
 
 
         lastAngle = currentAngle;
@@ -98,10 +98,11 @@ public class ActiveIntake {
 
         //If the servo is running
         //AND the angular velocity is less than 5 degrees/second
-        if(isRunning && angleVel < 2){
-            return true;
-        }
-        return false;
+        return isRunning && angleVel < 2;
+    }
+
+    public boolean getSampleCaptured(){
+        return sampleCaptured;
     }
 
     @SuppressLint("DefaultLocale")

@@ -161,9 +161,9 @@ public class PrimaryLocalizer implements LocalizerInterface, Localizer {
 
         //Field centric --> Robot Centric Coordinates
         double traveledDist = Math.sqrt(Math.pow(xDelta,2) + Math.pow(yDelta,2));
-        double localHeading = Math.atan2(yDelta, xDelta) - heading.toDouble()   ;
+        double localHeading = Math.atan2(yDelta, xDelta) - heading.toDouble();
         xDelta =  traveledDist * Math.cos(localHeading);
-        yDelta =  traveledDist * Math.sin(localHeading);;
+        yDelta =  traveledDist * Math.sin(localHeading);
 
         double headingDelta = heading.minus(lastHeading);
 

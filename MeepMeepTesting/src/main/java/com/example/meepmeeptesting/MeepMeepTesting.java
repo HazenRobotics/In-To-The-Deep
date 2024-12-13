@@ -122,7 +122,7 @@ public class MeepMeepTesting {
         bot.runAction(bot.getDrive().actionBuilder(startYellow2)
 
                 //Score preload
-                        .strafeToLinearHeading(bucketDropOff.position,bucketDropOff.heading)
+                        .lineToY(-34)
                         .waitSeconds(1)
 
                 //Drive to inner Sample
@@ -157,6 +157,10 @@ public class MeepMeepTesting {
                 .lineToX(-56)
 //                        .afterDisp()//After traveling some path to pick up a sample, raise lift
                 .splineTo(bucketDropOff.position,bucketDropOff.heading)
+
+
+                .setTangent(90)
+                .splineToSplineHeading(new Pose2d(-24,-12,Math.toRadians(-90)),Math.toRadians(0))
 
 
                 .build());
@@ -390,4 +394,14 @@ public class MeepMeepTesting {
         return bot;
     }
 
+    public static RoadRunnerBotEntity blankBot(MeepMeep meepMeep){
+        RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .build();
+        bot.runAction(bot.getDrive().actionBuilder(new Pose2d(0,0,0))
+                        .waitSeconds(20)
+                .build());
+        return bot;
+    }
 }
