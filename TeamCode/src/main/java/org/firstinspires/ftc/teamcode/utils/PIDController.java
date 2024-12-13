@@ -47,18 +47,18 @@ public class PIDController {
 
     //These can be used to adjust PID actively
     public void setKp(double kp){
-        Kp = kp;
+        this.Kp = kp;
     }
 
     public void setKi(double ki){
-        Ki = ki;
+        this.Ki = ki;
     }
 
     public void setKd(double kd){
-        Kd = kd;
+        this.Kd = kd;
     }
 
-    public void setKf(double kf) {Kf = kf;}
+    public void setKf(double kf) {this.Kf = kf;}
 
     public double[] getPIDValues(){
         return new double[] {Kp, Ki, Kd, Kf};
@@ -66,7 +66,14 @@ public class PIDController {
 
     @SuppressLint("DefaultLocale")
     public String toString(){
-        return String.format("Kp: %f\nKi: %f\nKd: %f\nKf: %f",Kp, Ki, Kd,Kf);
+        return String.format("Kp: %f\n" +
+                "Ki: %f\n" +
+                "Kd: %f\n" +
+                "Kf: %f\n",
+                Kp,
+                Ki,
+                Kd,
+                Kf);
     }
 }
 

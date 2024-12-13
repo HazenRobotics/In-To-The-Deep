@@ -66,6 +66,7 @@ public class Arm {
     private double encoderOffset_starting = 0;
     private ElapsedTime resetTimer;
 
+    //Controls/enables the PID to be activated or not, primarily for autonomous
     private boolean autoPIDActive = true;
 
     public Arm(HardwareMap hw){
@@ -170,7 +171,11 @@ public class Arm {
      * Please add this into the TeleOp loop when using this.
      */
     public double update(){
-        double power = pid.calculate(getPosition(), getForwardFeedValue());
+        //Default power will be the Forward Feed Constant
+        double power = pid.getPIDValues()[3] * getForwardFeedValue();
+        if (autoPIDActive) {
+            power = pid.calculate(getPosition(), getForwardFeedValue());
+        }
         armLeft.setPower(power);
         armRight.setPower(power);
 

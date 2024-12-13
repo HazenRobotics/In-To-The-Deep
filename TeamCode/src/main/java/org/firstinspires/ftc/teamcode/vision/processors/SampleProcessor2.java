@@ -68,13 +68,13 @@ public class SampleProcessor2 extends OpenCvPipeline implements VisionProcessor 
                 }
             }
         }
-        telemetry.addData("Intake", getIntakeString());
-        telemetry.addData("RedPixels", redPixels);
-        telemetry.addData("BluePixels", bluePixels);
-        telemetry.addData("YellowPixels", yellowPixels);
-        telemetry.addData("NothingPixels", nothingPixels);
-
-        telemetry.update();
+//        telemetry.addData("Intake", getIntakeString());
+//        telemetry.addData("RedPixels", redPixels);
+//        telemetry.addData("BluePixels", bluePixels);
+//        telemetry.addData("YellowPixels", yellowPixels);
+//        telemetry.addData("NothingPixels", nothingPixels);
+//
+//        telemetry.update();
 
         return input;
     }
@@ -102,8 +102,10 @@ public class SampleProcessor2 extends OpenCvPipeline implements VisionProcessor 
         }
         return "NOTHING";
     }
+
+
+    public enum IntakeStatus {
+        RED, BLUE, YELLOW, NOTHING
+    }
 }
 
-enum IntakeStatus {
-    RED, BLUE, YELLOW, NOTHING
-}

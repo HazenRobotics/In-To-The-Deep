@@ -25,11 +25,11 @@ public class FourEyesRobot extends Mecanum {
     HardwareMap hardwareMap;
     public Lift lift;
     public Arm arm;
-    Wrist wrist;
+    public Wrist wrist;
     Claw claw;
 
     ParkFlag parkFlag;
-    ActiveIntake activeIntake;
+    public ActiveIntake activeIntake;
     //---------------------------------------------------------------------------------------------
     //----------------------------------Internal States--------------------------------------------
     //---------------------------------------------------------------------------------------------
@@ -315,7 +315,8 @@ public class FourEyesRobot extends Mecanum {
         return new ParallelAction(
                 lift.liftPID(),
                 arm.armPID(),
-                new wristParallel()
+                new wristParallel(),
+                new activeCheck()
         );
     }
 
@@ -331,6 +332,9 @@ public class FourEyesRobot extends Mecanum {
         return new WaitForLiftArmPID((long) seconds);
     }
 
+    public Action waitForLiftArmPID(double seconds, double liftPosError, double armPosError, double liftVelError, double armVelError){
+        return new WaitForLiftArmPID((long) seconds,liftPosError,armPosError,liftVelError,armVelError);
+    }
     //This needed to be here since it saves the issue of transferring arm rotation to the wrist
     //class and then calling wrist to transfer a new wrist action
     public class wristParallel implements Action{
@@ -340,12 +344,34 @@ public class FourEyesRobot extends Mecanum {
             return wristAutoPIDActive;
         }
     }
+    public class activeCheck implements Action{
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            activeIntake.checkForSample();
+            return wristAutoPIDActive;
+        }
+    }
 
     public class WaitForLiftArmPID implements Action{
 
         private long maxWaitSeconds;
+
+        private double liftPos, armPos, liftVel, armVel;
         public WaitForLiftArmPID(long maxWaitSeconds){
             this.maxWaitSeconds = System.currentTimeMillis() + maxWaitSeconds * 1000;
+            this.liftPos = 100;
+            this.armPos = 100;
+            this.liftVel = 50;
+            this.armVel = 50;
+        }
+        public WaitForLiftArmPID(long maxWaitSeconds, double liftPos, double armPos, double liftVel, double armVel){
+            this.maxWaitSeconds = System.currentTimeMillis() + maxWaitSeconds * 1000;
+            this.liftPos = liftPos;
+            this.armPos = armPos;
+            this.liftVel = liftVel;
+            this.armVel = armVel;
+
         }
 
         /**
@@ -364,10 +390,10 @@ public class FourEyesRobot extends Mecanum {
              */
 
             return System.currentTimeMillis() < this.maxWaitSeconds &&
-                    (Math.abs(lift.getTargetPosition() - lift.getPosition()) > 100
-                            || Math.abs(lift.getVelocity()) > 50
-                            || Math.abs(arm.getTargetPosition() - arm.getPosition()) > 100
-                            || Math.abs(arm.getVelocity()) > 50
+                    (Math.abs(lift.getTargetPosition() - lift.getPosition()) > liftPos
+                            || Math.abs(lift.getVelocity()) > armPos
+                            || Math.abs(arm.getTargetPosition() - arm.getPosition()) > armPos
+                            || Math.abs(arm.getVelocity()) > armVel
                             );
         }
     }

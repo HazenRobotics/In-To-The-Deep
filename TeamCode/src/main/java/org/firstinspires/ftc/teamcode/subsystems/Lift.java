@@ -63,6 +63,7 @@ public class Lift {
     private String encoderName;
     private final PIDController pid;
 
+    //Controls/enables the PID to be activated or not, primarily for autonomous
     private boolean autoPIDActive = true;
 
     //-----------------------------------------------------------------------------------------
@@ -117,7 +118,7 @@ public class Lift {
         //Deposit Positions
         liftPositions.put(LiftStates.SPECIMEN_DEPOSIT, (int) (0.525581 * MAX_HEIGHT_POSITION));
         liftPositions.put(LiftStates.SAMPLE_DEPOSIT, (int) (0.99 * MAX_HEIGHT_POSITION));
-        liftPositions.put(LiftStates.SPECIMEN_DEPOSIT_FORWARD,(int) (0.232558 * MAX_HEIGHT_POSITION));
+        liftPositions.put(LiftStates.SPECIMEN_DEPOSIT_FORWARD,(int) (0.233558 * MAX_HEIGHT_POSITION));
 
         //Climb/Stow Positions
         liftPositions.put(LiftStates.ZERO, 0);
@@ -208,7 +209,11 @@ public class Lift {
      * Ensure this is called when using lift, otherwise nothing will happen.
      */
     public double update(){
-        double power = pid.calculate(getPosition(), getForwardFeedValue());
+        //Default power will be the Forward Feed Constant
+        double power = pid.getPIDValues()[3] * getForwardFeedValue();
+        if (autoPIDActive) {
+            power = pid.calculate(getPosition(), getForwardFeedValue());
+        }
         liftLeft.setPower(power);
         liftRight.setPower(power);
         return power;
