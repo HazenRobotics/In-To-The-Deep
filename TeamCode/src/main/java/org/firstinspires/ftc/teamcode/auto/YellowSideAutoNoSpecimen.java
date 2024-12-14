@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -19,29 +20,29 @@ import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.UltrasonicSensor;
 import org.firstinspires.ftc.teamcode.utils.TelemetryRecorder;
 
-@Autonomous(name="YellowSideAuto2")
-public class YellowSideAuto2 extends LinearOpMode {
+@Autonomous(name="YellowSideAutoNoSpecimen")
+public class YellowSideAutoNoSpecimen extends LinearOpMode {
 
 
-        public boolean debugging = true;
+    public boolean debugging = true;
 
-        public boolean[] enabledSections = {
-                true, //Preload
-                true, //Inner Sample
-                true, //Middle Sample
-                true, //Outer Sample
-                true, //Parking
-        };
+    public boolean[] enabledSections = {
+            true, //Preload
+            true, //Inner Sample
+            true, //Middle Sample
+            true, //Outer Sample
+            true, //Parking
+    };
 
-        //Key Points of Interest
+    //Key Points of Interest
 //        public Pose2d startPose = new Pose2d(-7.5,-60,Math.toRadians(-90));
-        public Pose2d startPose = new Pose2d(-11.75,-64.25,Math.toRadians(90));
-//        public Pose2d submersibleBar = new Pose2d(0,-31,Math.toRadians(-90));
+    public Pose2d startPose = new Pose2d(-12,-66,Math.toRadians(180));
+    //        public Pose2d submersibleBar = new Pose2d(0,-31,Math.toRadians(-90));
 //        public Pose2d specimenScorePose = new Pose2d(0,-24,Math.toRadians(-90));
 //        public Pose2d specimenScoreLineUp = new Pose2d(0,-36,Math.toRadians(-90));
-        public Pose2d sampleScorePoseForward = new Pose2d(-55,-55,Math.toRadians(225));
+    public Pose2d sampleScorePoseForward = new Pose2d(-53,-55,Math.toRadians(225));
 
-        //Locations relative to the Submersible
+    //Locations relative to the Submersible
 
     //Sample Intake Positions
     public Pose2d innerSampleIntake, middleSampleIntake, outerSampleIntake;
@@ -53,12 +54,12 @@ public class YellowSideAuto2 extends LinearOpMode {
     public void initSamplePositions(double y_sample_actual){
         //Sample Intake Positions
         innerSampleIntake = new Pose2d(-49,y_sample_actual,Math.toRadians(160));
-        middleSampleIntake = new Pose2d(-59,y_sample_actual,Math.toRadians(180));
-        outerSampleIntake = new Pose2d(-69,y_sample_actual,Math.toRadians(180));
+        middleSampleIntake = new Pose2d(-58,y_sample_actual,Math.toRadians(180));
+        outerSampleIntake = new Pose2d(-69,y_sample_actual ,Math.toRadians(180));
 
         //Sample Line Up Positions
         innerSampleLineUp = new Pose2d(-24,y_sample_actual-9.5,Math.toRadians(160));
-        middleSampleLineUp = new Pose2d(-39,y_sample_actual,Math.toRadians(180));
+        middleSampleLineUp = new Pose2d(-38,y_sample_actual,Math.toRadians(180));
         outerSampleLineUp = new Pose2d(-43,y_sample_actual,Math.toRadians(180));
     }
 
@@ -77,7 +78,7 @@ public class YellowSideAuto2 extends LinearOpMode {
         distanceSensor.setDistanceOffset(UltrasonicSensor.distanceOffsets.BOT_POSITION_OFFSET);
         roadRunner = new MecanumDrive(hardwareMap,startPose);
         telemetryRecorder = new TelemetryRecorder(telemetry);
-        initSamplePositions(-26);
+        initSamplePositions(submersibleBarPos - 3.75);
 
 
         waitForStart();
@@ -90,37 +91,43 @@ public class YellowSideAuto2 extends LinearOpMode {
             //Raises Lift to began the distance check
             Actions.runBlocking(new ParallelAction(
                     robot.autoPID(),
-                    new SequentialAction(
-                            new InstantAction(robot::depositSpecimenPosForward),
-                            new SleepAction(0.5),
-                            robot.endPID(),
-                            telemetryRecorder.addInstantMessage("Ended Initial Check")
-                    )
-            ));
-            //Check the distance, take 10 samples to filter out faulty data
-            //Default assumption for distance to bar is 42
-            double distanceCheck = distanceSensor.distanceCheck(42,35,45,100);
-            //Should be around -22 for BarPos, -30 if calculating the bot's position
-            submersibleBarPos = startPose.position.y + distanceCheck;
-            telemetryRecorder.addMessage("Sub recorded position: " + submersibleBarPos);
-            telemetryRecorder.addMessage("Beginning Preload Scoring\nBar position: "+(submersibleBarPos-8));
-            Actions.runBlocking(new ParallelAction(
-                    robot.autoPID(),
                     roadRunner.actionBuilder(startPose)
-                            .stopAndAdd(new InstantAction(robot::depositSpecimenPosForward))
-                            .stopAndAdd(robot.waitForLiftArmPID(5))
-                            //Travel to submersible bar based off distance
-                            .lineToY(submersibleBarPos - 8)
-                            .stopAndAdd(new InstantAction(robot::openClaw))
+                            //Initializes robot's servos specifically
+                    .stopAndAdd(new InstantAction(robot::activateIntake))
+
+                    //Score Sample Pre-Load
+                    .stopAndAdd(telemetryRecorder.addInstantMessage("Driving to Bucket..."))
+                    .stopAndAdd(new InstantAction(robot::depositSamplePosForward)) //Set new target position
+                    .stopAndAdd(new InstantAction(robot::VerticalArm)) //Override Arm Position
+//                        .stopAndAdd(strafeWithSubsystems(startPosition, bucketPosition))
+//                        .strafeTo(startPositionFromWall.position)
+                    .strafeToLinearHeading(sampleScorePoseForward.position.plus(new Vector2d(-0.5,-2)), sampleScorePoseForward.heading)
+                    .stopAndAdd(robot.waitForLiftArmPID(3))
+
+                    //Lower Arm
+
+                    .stopAndAdd(new InstantAction(robot::depositSamplePosForward))
+                    .stopAndAdd(robot.waitForLiftArmPID(2))
+                    .waitSeconds(0.5)
+
+                    //Deposit Via Claw
+                    .stopAndAdd(telemetryRecorder.addInstantMessage("Deposit Preload..."))
+                    .stopAndAdd(new InstantAction(robot::intakeBackward))
+                    .waitSeconds(0.1)
+                    .stopAndAdd(telemetryRecorder.addInstantMessage("Stow Arm..."))
+                    .stopAndAdd(new InstantAction(robot::deactivateIntake))
+                    //Move arm temporarily
+                    .stopAndAdd(new InstantAction(robot::VerticalArm))
+//                        .stopAndAdd(robot.waitForLiftArmPID(1))
+                    .stopAndAdd(telemetryRecorder.addInstantMessage("Stow Lift..."))
+                    .stopAndAdd(new InstantAction(robot::liftGoToZero))
+                    .stopAndAdd(robot.waitForLiftArmPID(2))
+
+
+
                             .stopAndAdd(robot.endPID())
                             .build()
             ));
-            distanceCheck = distanceSensor.distanceCheck(8,4,12,100);
-            submersibleBarPos = roadRunner.pose.position.y + distanceCheck;
-            //Samples are approximately 4 inches away from the submersible in the y-direction
-            initSamplePositions(submersibleBarPos - 4.5); //+Towards Sub -Towards Wall
-            telemetryRecorder.addMessage("Sub recorded position: " + submersibleBarPos);
-            telemetryRecorder.addMessage("Preload Scoring Complete!");
         }
         //Intake Sample
         if (enabledSections[1] && !isStopRequested()){
@@ -129,9 +136,6 @@ public class YellowSideAuto2 extends LinearOpMode {
             Actions.runBlocking(new ParallelAction(
                     robot.autoPID(),
                     roadRunner.actionBuilder(roadRunner.pose)
-                            .afterDisp(2,new InstantAction(robot::VerticalArm))
-                            //Backing away from the submersible
-                            .lineToY(submersibleBarPos - 16)
 
                             //Lining up/Preparing to intake Sample
                             .strafeToLinearHeading(innerSampleLineUp.position,innerSampleLineUp.heading)
@@ -141,7 +145,7 @@ public class YellowSideAuto2 extends LinearOpMode {
                             .waitSeconds(0.25)
 
                             //Intake Inner Sample
-                            .lineToY(0.5 + innerSampleIntake.position.y-(armIntakeLength*Math.sin(innerSampleIntake.heading.toDouble())),
+                            .lineToY(innerSampleIntake.position.y-(armIntakeLength*Math.sin(innerSampleIntake.heading.toDouble())),
                                     new TranslationalVelConstraint(7.5))
                             .afterDisp(0.1, new InstantAction(robot::VerticalArm))
                             .afterDisp(0.1, new InstantAction(() ->robot.lift.goToPosition(Lift.LiftStates.SAMPLE_DEPOSIT)))
@@ -152,7 +156,8 @@ public class YellowSideAuto2 extends LinearOpMode {
                             .stopAndAdd(robot.waitForLiftArmPID(4))
                             .stopAndAdd(telemetryRecorder.addInstantMessage("Ready to deposit!"))
                             .turnTo(sampleScorePoseForward.heading)
-                            .stopAndAdd(new InstantAction(() -> robot.arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT_FORWARD)))
+//                            .stopAndAdd(new InstantAction(() -> robot.arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT_FORWARD)))
+                            .stopAndAdd(new InstantAction(robot::depositSamplePosForward))
                             .waitSeconds(0.5)
                             .stopAndAdd(robot::intakeBackward)
                             .waitSeconds(0.1)
@@ -192,7 +197,8 @@ public class YellowSideAuto2 extends LinearOpMode {
                             .stopAndAdd(robot.waitForLiftArmPID(4))
                             .stopAndAdd(telemetryRecorder.addInstantMessage("Ready to deposit!"))
                             .turnTo(sampleScorePoseForward.heading)
-                            .stopAndAdd(new InstantAction(() -> robot.arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT_FORWARD)))
+//                            .stopAndAdd(new InstantAction(() -> robot.arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT_FORWARD)))
+                            .stopAndAdd(new InstantAction(robot::depositSamplePosForward))
                             .waitSeconds(0.5)
                             .stopAndAdd(robot::intakeBackward)
                             .waitSeconds(0.1)
@@ -230,8 +236,9 @@ public class YellowSideAuto2 extends LinearOpMode {
                             .splineToConstantHeading(sampleScorePoseForward.position,sampleScorePoseForward.heading.plus(Math.toRadians(-45)))
                             .stopAndAdd(robot.waitForLiftArmPID(4))
                             .stopAndAdd(telemetryRecorder.addInstantMessage("Ready to deposit!"))
-                            .stopAndAdd(new InstantAction(() -> robot.arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT_FORWARD)))
                             .turnTo(sampleScorePoseForward.heading)
+//                            .stopAndAdd(new InstantAction(() -> robot.arm.goToPosition(Arm.ArmState.SAMPLE_DEPOSIT_FORWARD)))
+                            .stopAndAdd(new InstantAction(robot::depositSamplePosForward))
                             .waitSeconds(0.5)
                             .stopAndAdd(robot::intakeBackward)
                             .waitSeconds(0.1)

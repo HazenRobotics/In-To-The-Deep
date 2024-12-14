@@ -164,7 +164,7 @@ public class FourEyesRobot extends Mecanum {
         activeIntake.reverseIntake();
     }
     public void intakeStop() {
-        wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
+//        wrist.goToPosition(Wrist.WristStates.PARALLEL_MODE);
         activeIntake.deactivateIntake();
     }
 

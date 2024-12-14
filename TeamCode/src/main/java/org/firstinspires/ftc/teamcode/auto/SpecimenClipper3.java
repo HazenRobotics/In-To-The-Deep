@@ -16,6 +16,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -76,13 +77,13 @@ public class SpecimenClipper3 extends LinearOpMode {
     public void initSamplePositions(double y_sample_actual){
         //Sample Intake Positions
         innerSampleIntake = new Pose2d(49,y_sample_actual,Math.toRadians(20));
-        middleSampleIntake = new Pose2d(59,y_sample_actual-0.25,Math.toRadians(0));
-        outerSampleIntake = new Pose2d(69,y_sample_actual - 0.6 ,Math.toRadians(0));
+        middleSampleIntake = new Pose2d(59,y_sample_actual+ 0.25,Math.toRadians(0));
+        outerSampleIntake = new Pose2d(69,y_sample_actual + 1 ,Math.toRadians(0));
 
         //Sample Line Up Positions
         innerSampleLineUp = new Pose2d(24,y_sample_actual - 9.5,Math.toRadians(20));
-        middleSampleLineUp = new Pose2d(39,y_sample_actual -0.25,Math.toRadians(0));
-        outerSampleLineUp = new Pose2d(46,y_sample_actual - 0.6,Math.toRadians(0));
+        middleSampleLineUp = new Pose2d(39,y_sample_actual + 0.25,Math.toRadians(0));
+        outerSampleLineUp = new Pose2d(46,y_sample_actual + 1,Math.toRadians(0));
     }
 
     // default position, changes later o
@@ -90,7 +91,7 @@ public class SpecimenClipper3 extends LinearOpMode {
     double wallIntakePos = -55;
     double distToWall = 32;
     double llToWallX = dropOff.position.x, llToWallY = dropOff.position.y - 10;
-    double specimenDepositGap = 3;
+    double specimenDepositGap = 2.5;
 
     double overclockVel = 70; //inches per second
     FourEyesRobot robot;
@@ -214,7 +215,7 @@ public class SpecimenClipper3 extends LinearOpMode {
                             .strafeToLinearHeading(middleSampleLineUp.position,middleSampleLineUp.heading)
                             .stopAndAdd(new InstantAction(robot::activateIntake))
                             //Intake middle sample
-                            .lineToX( middleSampleIntake.position.x - armIntakeLength + 0.5,
+                            .lineToX( middleSampleIntake.position.x - armIntakeLength,
                                     new TranslationalVelConstraint(25))
 
                             //Then travel to Human Player Zone
@@ -296,6 +297,8 @@ public class SpecimenClipper3 extends LinearOpMode {
                             
                             //Raise intake to prevent dragging
                             .afterDisp(0.1, new InstantAction(robot::intakeSpecimenPos))
+//                            .afterDisp(0.1, () -> robot.lift.goToPosition(Lift.LiftStates.SPECIMEN_INTAKE))
+//                            .afterDisp(0.1, () -> robot.arm.goToPosition(Arm.ArmState.SPECIMEN_INTAKE))
                             .afterDisp(0.1,telemetryRecorder.addInstantMessage("Completed Outer Sample Intake"))
                             
                             //Drive to Human Player Zone
@@ -308,6 +311,9 @@ public class SpecimenClipper3 extends LinearOpMode {
 //                            .afterDisp(0.1,new InstantAction(robot::intakeStop))
 //                            .strafeTo(dropOff.position.plus(new Vector2d(-7,0)),
 //                                    new TranslationalVelConstraint(overclockVel))
+
+//                            .stopAndAdd(new InstantAction(robot::intakeBackward))
+//                            .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
                             .stopAndAdd(robot.endPID())
                             .build()
             ));
@@ -317,7 +323,8 @@ public class SpecimenClipper3 extends LinearOpMode {
             Actions.runBlocking(new ParallelAction(
                     robot.autoPID(),
                     roadRunner.actionBuilder(roadRunner.pose)
-
+//                            .stopAndAdd(() -> robot.lift.goToPosition(Lift.LiftStates.SPECIMEN_INTAKE))
+//                            .stopAndAdd(() -> robot.arm.goToPosition(Arm.ArmState.SPECIMEN_INTAKE))
                             .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
                             .stopAndAdd(telemetryRecorder.addInstantMessage("Completed Middle Sample Intake"))
                             .splineTo(dropOff.position.plus(new Vector2d(-3,0)), dropOff.heading)
@@ -327,6 +334,8 @@ public class SpecimenClipper3 extends LinearOpMode {
 //                            .afterDisp(0.1,new InstantAction(robot::intakeStop))
 //                            .strafeTo(dropOff.position.plus(new Vector2d(-7,0)),
 //                                    new TranslationalVelConstraint(overclockVel))
+//                            .stopAndAdd(new InstantAction(robot::intakeBackward))
+//                            .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
                             .stopAndAdd(robot.endPID())
                             .build()
             ));
@@ -359,8 +368,8 @@ public class SpecimenClipper3 extends LinearOpMode {
                     roadRunner.actionBuilder(roadRunner.pose)
                             .stopAndAdd(robot::intakeSpecimenPos)
                             .stopAndAdd(robot::openClaw)
-                            .afterDisp(botDistIntakeY - 3,new InstantAction(robot::intakeBackward))
-                            .afterDisp(botDistIntakeY - 1, new InstantAction(robot::intakeStop))
+                            .afterDisp(0.3, new InstantAction(robot::intakeBackward))
+                            .afterDisp(1,new InstantAction(robot::intakeStop))
                             .lineToY(wallIntakePos)
                             .stopAndAdd(robot::closeClaw)
                             .stopAndAdd(robot.endPID())
@@ -375,9 +384,9 @@ public class SpecimenClipper3 extends LinearOpMode {
             Actions.runBlocking(new ParallelAction(
                     robot.autoPID(),
                     roadRunner.actionBuilder(roadRunner.pose)
-
+//                            .waitSeconds(0.2)
                             .stopAndAdd(new InstantAction(robot::depositSpecimenPos))
-                            .afterTime(0.1,new InstantAction(() ->robot.wrist.goToPosition(Wrist.WristStates.SPECIMEN_DEPOSIT)))
+//                            .afterTime(0.1,new InstantAction(() ->robot.wrist.goToPosition(Wrist.WristStates.SPECIMEN_DEPOSIT)))
                             .afterTime(0.1,new InstantAction(() -> robot.lift.getPid().setTarget(2400)))
 
                             .setReversed(true)

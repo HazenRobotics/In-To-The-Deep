@@ -26,7 +26,7 @@ public class Wrist {
 
     public final double LOWER_LIMIT = 0; // 0.25 = 90 degrees
     public final double UPPER_LIMIT = 1;
-    public final double WRIST_PARALLEL = 0.633; // Servo position to be parallel when Arm Rotation = 0
+    public final double WRIST_PARALLEL = 0.477; // Servo position to be parallel when Arm Rotation = 0
 
     private double lastAngle;
     private double callsPerSecond = 50;

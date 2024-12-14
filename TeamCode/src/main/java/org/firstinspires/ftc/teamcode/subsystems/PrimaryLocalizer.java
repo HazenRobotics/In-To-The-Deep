@@ -78,8 +78,6 @@ public class PrimaryLocalizer implements LocalizerInterface, Localizer {
                 yPos += pos.position.y * (sensors.getWeight());
                 headingX += Math.cos(pos.heading.toDouble())* (sensors.getWeight());
                 headingY += Math.sin(pos.heading.toDouble())* (sensors.getWeight());
-//                heading += pos.heading.toDouble() * (sensors.getWeight());
-
             }
         }
         //Average based on weight
@@ -88,7 +86,6 @@ public class PrimaryLocalizer implements LocalizerInterface, Localizer {
         headingX /= weight;
         headingY /= weight;
         double heading = Math.atan2(headingY,headingX);
-//        heading /= weight;
         return new Pose2d( xPos , yPos , heading );
     }
 
