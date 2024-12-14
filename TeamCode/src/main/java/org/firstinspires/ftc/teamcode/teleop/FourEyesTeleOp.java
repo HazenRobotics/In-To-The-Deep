@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.FourEyesRobot;
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
+import org.firstinspires.ftc.teamcode.vision.processors.SampleProcessor2;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 @TeleOp(name="Pepto Bismal")
 public class FourEyesTeleOp extends LinearOpMode {
@@ -15,6 +21,9 @@ public class FourEyesTeleOp extends LinearOpMode {
     GamepadEvents controller1,controller2;
     public static GamepadEvents.GamepadButton[] binding1;
     public static GamepadEvents.GamepadButton[] binding2;
+    Servo light;
+    double lightNumber=0.277;
+    SampleProcessor2 visionProc;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -45,6 +54,16 @@ public class FourEyesTeleOp extends LinearOpMode {
                 controller2.dpad_right
         };
         ElapsedTime timer = new ElapsedTime();
+
+        light = hardwareMap.get(Servo.class,"light");
+        visionProc = new SampleProcessor2(telemetry);
+        VisionPortal visionPortal = new VisionPortal.Builder()
+                .setCamera(hardwareMap.get( WebcamName.class, "Webcam 1"))
+                .addProcessor(visionProc)
+                .setCameraResolution(new Size(640, 480))
+                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+                .setAutoStopLiveView(true)
+                .build();
 
         waitForStart();
         fourEyesRobot.initializePowerStates();
@@ -160,7 +179,25 @@ public class FourEyesTeleOp extends LinearOpMode {
 //            if(binding2[5].onHeldFor(1000)){
 //                fourEyesRobot.toggleFieldCentric();
 //            }
+            if(fourEyesRobot.activeIntake.getSampleCaptured()) {
+                switch (visionProc.getIntakeStatus()) {
+                    case RED:
+                        light.setPosition(0.277);
+                    case BLUE:
+                        light.setPosition(0.611);
+                    case YELLOW:
+                        light.setPosition(0.388);
+                    case NOTHING:
+                        light.setPosition(0.5);
+                }
+            } else if(timer.seconds()>140) {
+                light.setPosition(lightNumber);
+                lightNumber+=0.0001;
+                if(lightNumber>0.722) {
+                    lightNumber=0.277;
+                }
 
+            }
 
             fourEyesRobot.updatePID();
             controller1.update();
