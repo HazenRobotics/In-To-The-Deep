@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 
-@TeleOp(name = "NelsenTeleOp")
+//@TeleOp(name = "NelsenTeleOp")
 public class NelsenTeleop extends LinearOpMode {
     final double REST_POWER = 0.21;
 

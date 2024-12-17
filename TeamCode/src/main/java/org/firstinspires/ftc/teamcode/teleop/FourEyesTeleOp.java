@@ -132,7 +132,9 @@ public class FourEyesTeleOp extends LinearOpMode {
             if (timer.seconds() > 90){
                 gamepad1.rumble(1000);
             }
-
+            if (90 < timer.seconds() && timer.seconds() < 95) {
+                gamepad1.stopRumble();
+            }
 
             //Player 2 controls
             //Manual driving
@@ -178,7 +180,7 @@ public class FourEyesTeleOp extends LinearOpMode {
 //            //Dpad Down
 //            if(binding2[5].onHeldFor(1000)){
 //                fourEyesRobot.toggleFieldCentric();
-//            }
+//            }\
             if(fourEyesRobot.activeIntake.getSampleCaptured()) {
                 switch (visionProc.getIntakeStatus()) {
                     case RED:
@@ -190,13 +192,15 @@ public class FourEyesTeleOp extends LinearOpMode {
                     case NOTHING:
                         light.setPosition(0.5);
                 }
-            } else if(timer.seconds()>140) {
+            } else if(timer.seconds()>110) {
                 light.setPosition(lightNumber);
-                lightNumber+=0.0001;
+                lightNumber+=0.0005;
                 if(lightNumber>0.722) {
                     lightNumber=0.277;
                 }
 
+            } else {
+                light.setPosition(0);
             }
 
             fourEyesRobot.updatePID();

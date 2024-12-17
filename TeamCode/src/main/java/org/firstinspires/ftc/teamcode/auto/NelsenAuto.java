@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Autonomous(name = "NelesenAuto")
+//@Autonomous(name = "NelesenAuto")
 public class NelsenAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
