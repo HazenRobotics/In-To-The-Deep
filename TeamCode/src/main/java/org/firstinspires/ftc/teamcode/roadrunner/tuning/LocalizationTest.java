@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.roadrunner.Drawing;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.TankDrive;
-import org.firstinspires.ftc.teamcode.subsystems.PrimaryLocalizer;
-import org.firstinspires.ftc.teamcode.utils.LimeLightWrapper;
+import org.firstinspires.ftc.teamcode.utils.localization.PrimaryLocalizer;
+import org.firstinspires.ftc.teamcode.utils.localization.LimeLightWrapper;
 
 @Config
 public class LocalizationTest extends LinearOpMode {
