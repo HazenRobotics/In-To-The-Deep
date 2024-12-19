@@ -11,6 +11,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
+import java.util.ArrayList;
+
 public class LimeLightWrapper implements LocalizerInterface{
 
     /*Will be used later on to have Limelight report data
@@ -44,6 +46,7 @@ public class LimeLightWrapper implements LocalizerInterface{
         limelight.pipelineSwitch(pipeline);
         limelight.start();
     }
+
     //gets all the valid inputs that the limelight finds
     public LLResult getVaildResult() {
         LLResult result = limelight.getLatestResult();
