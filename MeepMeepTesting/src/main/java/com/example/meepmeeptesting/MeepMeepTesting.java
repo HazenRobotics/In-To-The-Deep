@@ -24,7 +24,7 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(700);
 
-        RoadRunnerBotEntity activePath = colorBot3(meepMeep);
+        RoadRunnerBotEntity activePath = yellowBot3(meepMeep);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)
                 .setDarkMode(true)
@@ -52,7 +52,7 @@ public class MeepMeepTesting {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
-        bot.runAction(bot.getDrive().actionBuilder(startColor2)
+        bot.runAction(bot.getDrive().actionBuilder(startColor)
                 //Score Preload
                         .setReversed(true)
                         .splineTo(new Vector2d(0,-36),Math.toRadians(90))
@@ -119,20 +119,25 @@ public class MeepMeepTesting {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
-        bot.runAction(bot.getDrive().actionBuilder(startYellow2)
+        bot.runAction(bot.getDrive().actionBuilder(new Pose2d(startYellow.position, Math.toRadians(180)))
 
                 //Score preload
-                        .lineToY(-34)
-                        .waitSeconds(1)
+//                        .lineToY(-34)
+//                        .waitSeconds(1)
+                                .strafeToLinearHeading(bucketDropOff.position, bucketDropOff.heading)
+                                .waitSeconds(1)
+
 
                 //Drive to inner Sample
-                        .setReversed(true)
-                        .splineTo(innerSampleLineUp.position,innerSampleLineUp.heading.toDouble()-Math.toRadians(180))
+//                        .setReversed(true)
+                        .strafeToLinearHeading(innerSampleLineUp.position,innerSampleLineUp.heading.toDouble())
                         .waitSeconds(1)
 
                 //Score to inner sample
                         .setReversed(false)
+//                                .splineTo(new Vector2d(-36,-30),Math.PI)
                         .lineToX(-36)
+//                                .splineTo(new Vector2d(-38,-27),Math.PI)
 //                        .afterDisp()//After traveling some path to pick up a sample, raise lift
                         .splineTo(bucketDropOff.position,bucketDropOff.heading)
                         .waitSeconds(1)

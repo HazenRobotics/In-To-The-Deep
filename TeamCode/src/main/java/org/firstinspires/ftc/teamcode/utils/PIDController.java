@@ -23,14 +23,17 @@ public class PIDController {
     }
 
     public double calculate(double currentPosition, double forwardFeed) {
-        double currentTime = System.currentTimeMillis() / 1000.0; // current time in seconds
-        double deltaTime = currentTime - prevTime; // time difference
+        // current time in seconds
+        double currentTime = System.currentTimeMillis() / 1000.0;
+        // time difference
+        double deltaTime = currentTime - prevTime;
 
         double error = this.target - currentPosition;
         integral += error * deltaTime;
         double derivative = (error - prevError) / deltaTime;
 
-        double output = Kp * error + Ki * integral + Kd * derivative + Kf * forwardFeed;
+        double output = Kp * error + Ki * integral
+                + Kd * derivative + Kf * forwardFeed;
         prevError = error;
         prevTime = currentTime;
 
