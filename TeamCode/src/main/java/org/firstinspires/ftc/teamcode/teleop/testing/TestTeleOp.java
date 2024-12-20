@@ -16,10 +16,10 @@ public class TestTeleOp extends LinearOpMode {
 
      @Override
     public void runOpMode() throws InterruptedException {
-        frontLeft = hardwareMap.get(DcMotorEx.class,"FLM");
-        backLeft = hardwareMap.get(DcMotorEx.class,"BLM");
-        frontRight = hardwareMap.get(DcMotorEx.class,"FRM");
-        backRight = hardwareMap.get(DcMotorEx.class,"BRM");
+        frontLeft = hardwareMap.get(DcMotorEx.class,"frontLeft");
+        backLeft = hardwareMap.get(DcMotorEx.class,"backLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class,"frontRight");
+        backRight = hardwareMap.get(DcMotorEx.class,"backRight");
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection((DcMotorSimple.Direction.REVERSE));
         controller1 = new GamepadEvents(gamepad1);

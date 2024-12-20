@@ -37,6 +37,7 @@ import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -85,21 +86,30 @@ public class LimelightTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException
     {
 
+    }
+    public void test2() {
+        limelight3A = hardwareMap.get(Limelight3A.class,"limelight");
+        waitForStart();
+        while (opModeIsActive()) {
+            wrapper = new LimeLightWrapper(limelight3A);
+            wrapper.start(1);
+            Pose3D result = wrapper.getVaildResult().getBotpose();
+            telemetry.addData("1 - X: ",result.getPosition().x);
+            telemetry.addData("1 - Y: ",result.getPosition().y);
+            telemetry.addData("1 - Z: ",result.getPosition().z);
+        }
+
+    }
+    public void test1() {
         /*
         LIME LIGHT TAKE AWAY:
         ROTATION IS INVERTED (For spark rotation anyway)
          */
-
-
-
-
-
         positionMT1 = new Pose2d(0,0,0);
         positionMT2 = new Pose2d(0,0,0);
         Mecanum robot = new Mecanum(hardwareMap);
 
         GamepadEvents controller1 = new GamepadEvents(gamepad1);
-
         limelight3A = hardwareMap.get(Limelight3A.class,"limelight");
         wrapper = new LimeLightWrapper(limelight3A);
 //        imu = hardwareMap.get(IMU.class, "imu");
@@ -156,7 +166,6 @@ public class LimelightTest extends LinearOpMode {
             telemetry.update();
             controller1.update();
         }
-
     }
 
     public void drawDashboard(){
