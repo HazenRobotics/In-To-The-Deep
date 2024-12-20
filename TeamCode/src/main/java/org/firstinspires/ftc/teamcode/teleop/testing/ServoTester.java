@@ -7,7 +7,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 
-@TeleOp(name = "ServoTester")
+@TeleOp(name = "ServoTester", group="Subsystem Tests"
+
+
+
+
+
+
+
+
+)
 public class ServoTester extends LinearOpMode {
     GamepadEvents controller1;
     CRServo CRservo;

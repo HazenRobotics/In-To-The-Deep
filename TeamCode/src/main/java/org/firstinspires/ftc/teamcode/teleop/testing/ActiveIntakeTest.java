@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 
 import org.firstinspires.ftc.teamcode.utils.sensors.AxonAbsolutePositionEncoder;
 
-@TeleOp(name="Axon Intake Test", group="Subsystem Tests")
+//@TeleOp(name="Axon Intake Test", group="Subsystem Tests")
 public class ActiveIntakeTest extends LinearOpMode {
 
     @Override

@@ -28,8 +28,9 @@ public class IndicatorLight {
     }
 
     public static final double RED_WEIGHT = 0.277;
-    double GREEN_WEIGHT = 0.5;
-    double BLUE_WEIGHT = 0.611;
+    public static final double GREEN_WEIGHT = 0.5;
+    public static final double BLUE_WEIGHT = 0.611;
+    public static final double YELLOW_WEIGHT = 0.388;
     Servo servo;
     Telemetry telemetry;
     public IndicatorLight(HardwareMap hw, Telemetry t) {
