@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems.version2;
 
+import android.annotation.SuppressLint;
+
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.roadrunner.ftc.Encoder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
@@ -80,12 +84,16 @@ public class DepositLift extends PIDController {
         return currentState;
     }
 
+    public int getPosition(){
+        return encoder.getPositionAndVelocity().position;
+    }
+
     /**
      * Updates PID loop/motor power.
      * Ensure this is called when using lift, otherwise nothing will happen.
      */
     public void updatePID(){
-        double power = super.calculate(encoder.getPositionAndVelocity().position, getForwardFeed());
+        double power = super.calculate(getPosition(), getForwardFeed());
         liftLeft.setPower(power);
         liftRight.setPower(power);
     }
@@ -121,6 +129,21 @@ public class DepositLift extends PIDController {
     public void resetLiftOffset(){
         liftOffset = encoder.getPositionAndVelocity().position;
         initializePositions();
+    }
+
+    @NonNull
+    @SuppressLint("DefaultLocale")
+    public String toString(){
+        return String.format("Target Position: %f\n" +
+                        "Current Position: %d\n" +
+                        "Current State: %s",
+                super.getTarget(),
+                getPosition(),
+                getCurrentState());
+    }
+
+    public String toStringPID(){
+        return super.toString();
     }
 
 }

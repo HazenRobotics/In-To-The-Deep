@@ -33,8 +33,15 @@ public class IndicatorLight {
     public static final double YELLOW_WEIGHT = 0.388;
     Servo servo;
     Telemetry telemetry;
+
+    public IndicatorLight(HardwareMap hw) {
+        this(hw, "light");
+    }
+    public IndicatorLight(HardwareMap hw, String name) {
+        servo = hw.get(Servo.class,name);
+    }
     public IndicatorLight(HardwareMap hw, Telemetry t) {
-        servo = hw.get(Servo.class,"light");
+        this(hw, "light");
         telemetry=t;
     }
     public double setColor(double color) {

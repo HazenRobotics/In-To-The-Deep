@@ -29,38 +29,9 @@ public class AutoTesting extends LinearOpMode {
 
         FourEyesRobot robot = new FourEyesRobot(hardwareMap);
 
-        SampleProcessor2 visionProc = new SampleProcessor2(telemetry);
-        VisionPortal visionPortal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get( WebcamName.class, "Webcam 1"))
-                .addProcessor(visionProc)
-                .setCameraResolution(new Size(640, 480))
-                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
-                .setAutoStopLiveView(true)
-                .build();
 
         waitForStart();
 
-        Actions.runBlocking(new ParallelAction(
-                robot.autoPID(),
-                roadRunner.actionBuilder(startPosition)
-                        .stopAndAdd(new InstantAction(robot::depositSamplePosForward))
-                        .build()
-        ));
 
-        //
-//        Actions.runBlocking(new ParallelAction(
-//                robot.autoPID(),
-//                new SequentialAction(
-//                roadRunner.actionBuilder(startPosition)
-////                        .strafeTo( new Vector2d(-12,-40))
-//                        .stopAndAdd(new InstantAction(robot::intakeSpecimenPos))
-//                        .waitSeconds(5)
-//                        .build()
-//        )));
-//        TrajectoryActionBuilder res = roadRunner.actionBuilder(startPosition)
-//                .strafeTo( new Vector2d(-12,-40))
-//
-//                ;
-//        res.endTrajectory();
     }
 }

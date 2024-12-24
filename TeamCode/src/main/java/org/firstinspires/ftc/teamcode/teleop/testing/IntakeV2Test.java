@@ -21,7 +21,7 @@ public class IntakeV2Test extends LinearOpMode {
         IndicatorLight led = new IndicatorLight(hardwareMap,telemetry);
         DcMotorEx intake = hardwareMap.get(DcMotorEx.class, "intake");
 
-        Servo ejectServo = hardwareMap.get(Servo.class, "ejectionServo");
+        Servo ejectServo = hardwareMap.get(Servo.class, "ejector");
         double lowerPos = 0;
         double ejectPos = 0.606;
         boolean isLowered = true;
@@ -61,21 +61,7 @@ public class IntakeV2Test extends LinearOpMode {
             }
 
 
-            ColorSensor.Color color = colorSensor.getColor();
-            switch (color){
-                case Yellow:
-                    led.setColor(IndicatorLight.YELLOW_WEIGHT);
-                    break;
-                case Red:
-                    led.setColor(IndicatorLight.RED_WEIGHT + 0.01);
-                    break;
-                case Blue:
-                    led.setColor(IndicatorLight.BLUE_WEIGHT);
-                    break;
-                default:
-                    led.setColor(0);
-                    break;
-            }
+
             telemetry.addLine(colorSensor.toString());
             telemetry.addData("Servo Pos: ", ejectServo.getPosition());
             telemetry.addData("Servo isLowered: ",isLowered);
