@@ -20,7 +20,9 @@ import org.firstinspires.ftc.teamcode.subsystems.versionpepto.Lift;
 import org.firstinspires.ftc.teamcode.utils.sensors.UltrasonicSensor;
 import org.firstinspires.ftc.teamcode.utils.localization.LimeLightWrapper;
 import org.firstinspires.ftc.teamcode.utils.TelemetryRecorder;
+import org.firstinspires.ftc.teamcode.vision.processors.Sample;
 import org.firstinspires.ftc.teamcode.vision.processors.SampleProcessor2;
+import org.firstinspires.ftc.teamcode.vision.processors.Specimen;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 @Autonomous(name="SpecimenClipper3")
@@ -514,7 +516,7 @@ public class SpecimenClipper3 extends LinearOpMode {
 
 
         boolean axonMiss = !robot.activeIntake.getSampleCaptured();
-        boolean visionMiss = visionProc.getIntakeStatus() == SampleProcessor2.IntakeStatus.NOTHING;
+        boolean visionMiss = visionProc.getIntakeStatus() == Sample.NOTHING;
 
         telemetryRecorder.addMessage("Bool states: " + axonMiss + " " + visionProc.getIntakeString());
 

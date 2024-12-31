@@ -79,20 +79,20 @@ public class SampleProcessor2 extends OpenCvPipeline implements VisionProcessor 
         return input;
     }
 
-    public IntakeStatus getIntakeStatus() {
+    public Sample getIntakeStatus() {
         if (redPixels > bluePixels && redPixels > yellowPixels && redPixels > nothingPixels) {
-            return IntakeStatus.RED;
+            return Sample.RED;
         } else if (bluePixels > redPixels && bluePixels > yellowPixels && bluePixels > nothingPixels) {
-            return IntakeStatus.BLUE;
+            return Sample.BLUE;
         } else if (yellowPixels > redPixels && yellowPixels > bluePixels && yellowPixels > nothingPixels) {
-            return IntakeStatus.YELLOW;
+            return Sample.YELLOW;
         } else {
-            return IntakeStatus.NOTHING;
+            return Sample.NOTHING;
         }
     }
 
     public String getIntakeString() {
-        IntakeStatus intakeStatus = getIntakeStatus();
+        Sample intakeStatus = getIntakeStatus();
         if (intakeStatus.equals(IntakeStatus.RED)) {
             return "RED";
         } else if (intakeStatus.equals(IntakeStatus.BLUE)) {
