@@ -4,13 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.subsystems.version2.DepositArm;
 import org.firstinspires.ftc.teamcode.subsystems.version2.IntakeArm;
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 
-//@TeleOp(name="Intake Arm V2 Test", group="Subsystem Tests")
-public class IntakeArmV2Test extends LinearOpMode {
+@TeleOp(name="Deposit Arm V2 Test", group="Subsystem Tests")
+public class DepositArmV2Test extends LinearOpMode {
 
-    IntakeArm arm;
+    DepositArm arm;
     Servo left, right, wrist;
 
     @Override
@@ -39,7 +40,7 @@ public class IntakeArmV2Test extends LinearOpMode {
             telemetry.addData("LeftPiv   [a]: ",leftPiv);
             telemetry.addData("RightPiv  [b]: ",rightPiv);
             telemetry.addData("wrist     [x]: ",wristPiv);
-            telemetry.addData("IntakeArm [y]: ",intakeArm);
+            telemetry.addData("DepositArm [y]: ",intakeArm);
             telemetry.addLine("Dpad Up to complete!");
             controller1.update();
             telemetry.update();
@@ -47,24 +48,24 @@ public class IntakeArmV2Test extends LinearOpMode {
 
 
         if (intakeArm){
-            arm = new IntakeArm(hardwareMap);
+            arm = new DepositArm(hardwareMap);
             arm.setPositionArm(0.5);
             arm.setPositionWrist(0.5);
             telemetry.addLine("Intake Arm Initialized");
         }else{
             if (leftPiv){
-                left = hardwareMap.get(Servo.class, "pivLeft");
+                left = hardwareMap.get(Servo.class, "depositForward");
                 left.setPosition(0.5);
                 telemetry.addLine("Left Pivot Servo Initialized");
             }
             if (rightPiv){
-                right = hardwareMap.get(Servo.class, "pivRight");
+                right = hardwareMap.get(Servo.class, "depositBackward");
                 right.setDirection(Servo.Direction.REVERSE);
                 right.setPosition(0.5);
                 telemetry.addLine("Right Pivot Servo Initialized");
             }
             if (wristPiv){
-                wrist = hardwareMap.get(Servo.class, "wrist");
+                wrist = hardwareMap.get(Servo.class, "depositWrist");
                 telemetry.addLine("Wrist Servo Initialized");
             }
         }
@@ -92,12 +93,12 @@ public class IntakeArmV2Test extends LinearOpMode {
                 if (leftPiv) {
                     left.setPosition(left.getPosition() + 0.001 * gamepad1.left_stick_y);
                     telemetry.addLine("Gamepad1 Left Stick Y to control Left Pivot");
-                    telemetry.addData("Left Piv Position:", left.getPosition());
+                    telemetry.addData("Front Piv Position:", left.getPosition());
                 }
                 if (rightPiv) {
                     right.setPosition(right.getPosition() + 0.001 * gamepad1.right_stick_y);
                     telemetry.addLine("Gamepad1 Right Stick Y to control Right Pivot");
-                    telemetry.addData("Right Piv Position:", right.getPosition());
+                    telemetry.addData("Back Piv Position:", right.getPosition());
                 }
                 if (wristPiv) {
                     wrist.setPosition(wrist.getPosition() + 0.001 * (gamepad1.left_trigger - gamepad1.right_stick_y));

@@ -8,8 +8,11 @@ import com.acmerobotics.roadrunner.ftc.Encoder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.utils.MiscMethods;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 import java.util.HashMap;
@@ -17,13 +20,32 @@ import java.util.HashMap;
 
 public class ExtendoSlide extends PIDController {
 
+    double EXTENDO_SPEED = 40;
+
+    static double MAX_EXTENSION = 500;
     public enum ExtendoStates{
-        ZERO
+        TRANSFER(0),
+        HALF_EXTEND(0),
+        FULL_EXTEND(MAX_EXTENSION),
+
+        VARIABLE_EXTEND(TRANSFER.getPosition() + 50);
+
+        private double position;
+        ExtendoStates(double pos){
+            position = pos;
+        }
+        public double getPosition(){
+            return position;
+        }
+        void setPosition(double pos){
+            position = pos;
+        }
     }
+
     DcMotorEx extendo;
     Encoder encoder;
 
-    double EXTENDO_SPEED;
+
 
     HashMap<ExtendoStates, Integer> extendoPositions;
 
@@ -35,21 +57,22 @@ public class ExtendoSlide extends PIDController {
     //----------------------------------Initialization----------------------------------------------
     //----------------------------------(Constructors)----------------------------------------------
     public ExtendoSlide(HardwareMap hw, String nameMotor, String nameEncoder){
-        super(0,0,0,0);
+        super(0.03,0,0,0);
         extendo = hw.get(DcMotorEx.class, nameMotor);
+        //Initially negative, but I want to work with positives only
+        extendo.setDirection(DcMotorSimple.Direction.REVERSE);
+
         encoder = new OverflowEncoder(new RawEncoder(hw.get(DcMotorEx.class, nameEncoder)));
+        encoder.setDirection(DcMotorSimple.Direction.REVERSE);
 
         extendoOffset = 0;
-        initializePositions();
+        currentState = ExtendoStates.TRANSFER;
     }
 
     public ExtendoSlide(HardwareMap hw){
-        this(hw, "extendo","extendo");
+        this(hw, "extendo","BRM");
     }
 
-    public void initializePositions(){
-        extendoPositions = new HashMap<ExtendoStates,Integer>();
-    }
 
     //-----------------------------------------------------------------------------------------
     //----------------------------------Go To Positions----------------------------------------
@@ -62,7 +85,7 @@ public class ExtendoSlide extends PIDController {
      */
     public void goToPosition(ExtendoStates state){
         currentState = state;
-        super.setTarget(extendoPositions.get(state) + extendoOffset);
+        super.setTarget(state.getPosition() + extendoOffset);
         super.setTarget(super.getTarget());
     }
 
@@ -82,13 +105,21 @@ public class ExtendoSlide extends PIDController {
         return encoder.getPositionAndVelocity().position;
     }
 
+    public int getVelocity(){
+        return encoder.getPositionAndVelocity().velocity;
+    }
+
     /**
      * Updates PID loop/motor power.
      * Ensure this is called when using lift, otherwise nothing will happen.
      */
-    public void updatePID(){
+    public double updatePID(){
         double power = super.calculate(getPosition(), getForwardFeed());
         extendo.setPower(power);
+        if (extendo.getCurrent(CurrentUnit.AMPS) > 5 && Math.abs(getVelocity()) < 5){
+            extendoOffset = getPosition();
+        }
+        return power;
     }
     //-----------------------------------------------------------------------------------------
     //----------------------------------Tune/Tweak Functions-----------------------------------
@@ -113,15 +144,34 @@ public class ExtendoSlide extends PIDController {
      * @return [int] Returns the new target position of the lift in ticks.
      */
     public int setPosition(double power){
-        int targetPosition = (int) (super.getTarget() + (power * EXTENDO_SPEED));
-        extendoPositions.put(currentState, targetPosition);
+        int targetPosition = (int) Math.min(super.getTarget() + (power * EXTENDO_SPEED), MAX_EXTENSION);
+//        currentState.setPosition(targetPosition);
+        if (extendoOffset + targetPosition > 50){
+            currentState = ExtendoStates.VARIABLE_EXTEND;
+        }else{
+           currentState = ExtendoStates.TRANSFER;
+        }
+        super.setTarget(targetPosition);
+        return targetPosition;
+    }
+    public int setPositionRestricted(double power){
+        int targetPosition = (int) MiscMethods.clamp(super.getTarget() + (power * EXTENDO_SPEED), extendoOffset ,MAX_EXTENSION);
+//        currentState.setPosition(targetPosition);
+        if (extendoOffset + targetPosition > 50){
+            currentState = ExtendoStates.VARIABLE_EXTEND;
+        }else{
+            currentState = ExtendoStates.TRANSFER;
+        }
         super.setTarget(targetPosition);
         return targetPosition;
     }
 
-    public void resetLiftOffset(){
+
+    public void resetExtendoOffset(){
         extendoOffset = encoder.getPositionAndVelocity().position;
-        initializePositions();
+        ExtendoStates.TRANSFER.setPosition(0);
+        ExtendoStates.HALF_EXTEND.setPosition(0);
+        ExtendoStates.FULL_EXTEND.setPosition(MAX_EXTENSION);
     }
 
 
@@ -130,10 +180,12 @@ public class ExtendoSlide extends PIDController {
     public String toString(){
         return String.format("Target Position: %f\n" +
                 "Current Position: %d\n" +
-                "Current State: %s",
+                "Current State: %s\n"+
+                "Motor Current %f\n",
                 super.getTarget(),
                 getPosition(),
-                getCurrentState());
+                getCurrentState(),
+                extendo.getCurrent(CurrentUnit.AMPS));
     }
 
     public String toStringPID(){

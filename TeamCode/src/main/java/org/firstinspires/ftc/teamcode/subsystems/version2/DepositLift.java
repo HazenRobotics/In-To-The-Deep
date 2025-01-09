@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.subsystems.versionpepto.Lift;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
@@ -18,11 +19,28 @@ import java.util.HashMap;
 
 public class DepositLift extends PIDController {
 
-    private static final int LIFT_SPEED = 50;
+    private static final int LIFT_SPEED = 25;
 
 
     public enum LiftStates {
-        ZERO
+        TRANSFER(0), //Default Position
+        SPECIMEN_INTAKE(190), //Specimen Intake Position
+        SPECIMEN_DEPOSIT(210), //Specimen Deposit Position
+        SAMPLE_DEPOSIT(720); // Sample Deposit Position
+
+        double position;
+        LiftStates(double position){
+            this.position = position;
+        }
+
+
+        public double getPosition() {
+            return position;
+        }
+
+        public void setPosition(double position) {
+            this.position = position;
+        }
     }
 
     LiftStates currentState;
@@ -30,7 +48,6 @@ public class DepositLift extends PIDController {
     DcMotorEx liftLeft, liftRight;
     Encoder encoder;
 
-    private HashMap<LiftStates, Integer> liftPositions;
 
     private int liftOffset;
     //----------------------------------------------------------------------------------------------
@@ -38,24 +55,22 @@ public class DepositLift extends PIDController {
     //----------------------------------(Constructors)----------------------------------------------
 
     public DepositLift(HardwareMap hw){
-        this(hw, "liftLeft", "liftRight","liftLeft");
+        this(hw, "liftLeft", "liftRight","FLM");
     }
 
     public DepositLift(HardwareMap hw, String nameLeft, String nameRight, String nameEncoder){
-        super(0,0,0,0);
+        super(0.025,0.0,0.001,0.0);
         liftLeft = hw.get(DcMotorEx.class, nameLeft);
         liftRight = hw.get(DcMotorEx.class, nameRight);
         encoder = new OverflowEncoder(new RawEncoder(hw.get(DcMotorEx.class, nameEncoder)));
 
-        liftRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        encoder.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         liftOffset = 0;
-        initializePositions();
+        currentState = LiftStates.TRANSFER;
     }
 
-    public void initializePositions(){
-        liftPositions = new HashMap<LiftStates,Integer>();
-    }
 
     //-----------------------------------------------------------------------------------------
     //----------------------------------Go To Positions----------------------------------------
@@ -68,7 +83,7 @@ public class DepositLift extends PIDController {
      */
     public void goToPosition(LiftStates state){
         currentState = state;
-        super.setTarget(liftPositions.get(state) + liftOffset);
+        super.setTarget(state.getPosition() + liftOffset);
         super.setTarget(super.getTarget());
     }
 
@@ -87,15 +102,19 @@ public class DepositLift extends PIDController {
     public int getPosition(){
         return encoder.getPositionAndVelocity().position;
     }
+    public int getVelocity(){
+        return encoder.getPositionAndVelocity().velocity;
+    }
 
     /**
      * Updates PID loop/motor power.
      * Ensure this is called when using lift, otherwise nothing will happen.
      */
-    public void updatePID(){
+    public double updatePID(){
         double power = super.calculate(getPosition(), getForwardFeed());
         liftLeft.setPower(power);
         liftRight.setPower(power);
+        return power;
     }
     //-----------------------------------------------------------------------------------------
     //----------------------------------Tune/Tweak Functions-----------------------------------
@@ -121,14 +140,19 @@ public class DepositLift extends PIDController {
      */
     public int setPosition(double power){
         int targetPosition = (int) (super.getTarget() + (power * LIFT_SPEED));
-        liftPositions.put(currentState, targetPosition);
+        currentState.setPosition(targetPosition);
         super.setTarget(targetPosition);
         return targetPosition;
     }
 
     public void resetLiftOffset(){
         liftOffset = encoder.getPositionAndVelocity().position;
-        initializePositions();
+        LiftStates.TRANSFER.setPosition(0);
+        LiftStates.SPECIMEN_INTAKE.setPosition(190);
+        LiftStates.SPECIMEN_DEPOSIT.setPosition(210);
+        LiftStates.SAMPLE_DEPOSIT.setPosition(720);
+
+
     }
 
     @NonNull
@@ -136,10 +160,14 @@ public class DepositLift extends PIDController {
     public String toString(){
         return String.format("Target Position: %f\n" +
                         "Current Position: %d\n" +
-                        "Current State: %s",
+                        "Current State: %s\n" +
+                "Current Amps Left: %f\n" +
+                        "Current Amps Right: %f\n" ,
                 super.getTarget(),
                 getPosition(),
-                getCurrentState());
+                getCurrentState(),
+                liftLeft.getCurrent(CurrentUnit.AMPS),
+                liftRight.getCurrent(CurrentUnit.AMPS));
     }
 
     public String toStringPID(){

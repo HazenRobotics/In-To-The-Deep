@@ -24,7 +24,7 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(700);
 
-        RoadRunnerBotEntity activePath = yellowBot3(meepMeep);
+        RoadRunnerBotEntity activePath = V2_yellowBot(meepMeep);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)
                 .setDarkMode(true)
@@ -46,7 +46,116 @@ public class MeepMeepTesting {
                 .build());
         return bot;
     }
+    public static RoadRunnerBotEntity V2_colorBot(MeepMeep meepMeep){
 
+        RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .build();
+        Pose2d startPos = new Pose2d(12,-64,Math.toRadians(90));
+        Pose2d barPos = new Pose2d(0,-32,Math.toRadians(90));
+
+        double inner = 49, middle = 59, outer = 69;
+        double sampleY = -48;
+
+        Pose2d specIntake = new Pose2d(36, -64, Math.toRadians(90));
+        bot.runAction(bot.getDrive().actionBuilder(startPos)
+                        .lineToY(barPos.position.y)
+                        .waitSeconds(0.5)
+                        .setReversed(true)
+//                        .lineToY(barPos.position.y - 5)
+
+                        .splineToConstantHeading(new Vector2d(inner,sampleY),Math.toRadians(90))
+                        .waitSeconds(3)
+                        .strafeTo(new Vector2d(middle, sampleY))
+                        .waitSeconds(3)
+                        .turnTo(Math.toRadians(65))
+                        .waitSeconds(3)
+
+                .strafeToLinearHeading(specIntake.position,specIntake.heading)
+                .waitSeconds(0.5)
+                .splineToConstantHeading(barPos.position,barPos.heading)
+
+                .waitSeconds(0.01)
+                .setReversed(true)
+                .splineTo(specIntake.position,Math.toRadians(-90))
+                .waitSeconds(0.5)
+                .setReversed(false)
+                .splineToConstantHeading(barPos.position,barPos.heading)
+
+                .waitSeconds(0.01)
+                .setReversed(true)
+                .splineTo(specIntake.position,Math.toRadians(-90))
+                .waitSeconds(0.5)
+                .setReversed(false)
+                .splineToConstantHeading(barPos.position,barPos.heading)
+
+                .waitSeconds(0.01)
+                .setReversed(true)
+                .splineTo(specIntake.position,Math.toRadians(-90))
+                .waitSeconds(0.5)
+                .setReversed(false)
+                .splineToConstantHeading(barPos.position,barPos.heading)
+
+
+                .build());
+        return bot;
+    }
+
+    public static RoadRunnerBotEntity V2_yellowBot(MeepMeep meepMeep){
+        RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .build();
+        Pose2d startPos = new Pose2d(-36,-64,Math.toRadians(90));
+        Pose2d bucketPos = new Pose2d(-60,-60,Math.toRadians(45));
+
+        Pose2d innerSample = new Pose2d(-49,-25,0);
+        Pose2d middleSample = new Pose2d(-59,-25,0);
+        Pose2d outerSample = new Pose2d(-69,-25,0);
+
+        Pose2d innerLineUp = MiscMethods.lerp(bucketPos,innerSample,0.1);
+        Pose2d middleLineUp = MiscMethods.lerp(bucketPos,middleSample,0.1);
+
+        Pose2d outerLineUp = MiscMethods.lerp(new Pose2d(-55, -55, 0),outerSample,0.1);
+
+        Pose2d submerisbleIntake = new Pose2d(-24, -12, 0);
+
+        bot.runAction(bot.getDrive().actionBuilder(startPos)
+                //Score Preload
+                //Close claw and Activate lift at start
+                //Begin extending extendo, halfway likely
+                        .strafeToLinearHeading(innerLineUp.position,innerLineUp.heading)
+                //Fully extend extendo, don't activate intake until claw is released
+                        .waitSeconds(2)
+                        //Release Claw
+                        //Activate intake to take in sample
+                        //Lower Lift
+                        //After intake completed, check or waited, retract intake
+                        //After intake is completed, line up with middle sample
+                        .strafeToLinearHeading(middleLineUp.position,middleLineUp.heading)
+                        .waitSeconds(2)//Wait for intake to transfer
+                        //Transfer, raise lift
+                        //Release Claw
+                        //Extend extendo/intake
+                        //Lower lift
+                        .waitSeconds(2)
+                        .strafeToLinearHeading(outerLineUp.position,outerLineUp.heading)
+                        //Intake using Extendo
+                        //Then retract and enter transfer Position
+                        .waitSeconds(2)
+                        .strafeToLinearHeading(bucketPos.position,bucketPos.heading)
+                        //Close claw
+                        //Raise lift to deposit
+                        //Open Claw
+                        .lineToY(bucketPos.position.y + 1)
+                        .splineTo(submerisbleIntake.position, submerisbleIntake.heading)
+                        //Sweep, extend intake
+
+
+                .build());
+        return bot;
+    }
     public static RoadRunnerBotEntity colorBot2(MeepMeep meepMeep){
         RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
@@ -408,5 +517,40 @@ public class MeepMeepTesting {
                         .waitSeconds(20)
                 .build());
         return bot;
+    }
+}
+
+/**
+ * A Helper Class containing potentially useful methods to be shared across the repo
+ */
+class MiscMethods {
+
+    /**
+     * Ensures the value remains within the set [min, max] range.
+     * @param val Variable Value
+     * @param min Minimum Possible Value
+     * @param max Maximum Possible Value
+     * @return
+     */
+    public static double clamp(double val, double min, double max){
+        //Prevents the user from accidentally flipping the min and max values.
+        if(min > max){
+            double temp = max;
+            max = min;
+            min = temp;
+        }
+        return Math.max( min, Math.min(val , max));
+    }
+
+    public static Pose2d lerp(Pose2d anchor, Pose2d target, double dist){
+        double deltaX = target.position.x - anchor.position.x;
+        double deltaY = target.position.y - anchor.position.y;
+        double heading = Math.atan2(deltaY, deltaX);
+
+        return new Pose2d(
+                anchor.position.x + dist * Math.cos(heading),
+                anchor.position.y + dist * Math.sin(heading),
+                heading
+        );
     }
 }

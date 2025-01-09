@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="SpecimenClipper2")
+//@Autonomous(name="SpecimenClipper2")
 public class SpecimenClipper2 extends LinearOpMode {
 
     private Pose2d startPosition = new Pose2d(8.5,-59.5/*+0.25*/, Math.toRadians(-90));

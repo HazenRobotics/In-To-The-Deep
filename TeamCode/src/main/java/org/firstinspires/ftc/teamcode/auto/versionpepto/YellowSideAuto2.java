@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.subsystems.versionpepto.Lift;
 import org.firstinspires.ftc.teamcode.utils.sensors.UltrasonicSensor;
 import org.firstinspires.ftc.teamcode.utils.TelemetryRecorder;
 
-@Autonomous(name="YellowSideAuto2")
+//@Autonomous(name="YellowSideAuto2")
 public class YellowSideAuto2 extends LinearOpMode {
 
 

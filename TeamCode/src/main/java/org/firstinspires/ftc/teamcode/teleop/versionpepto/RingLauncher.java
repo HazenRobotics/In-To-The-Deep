@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "RingLauncher")
+//@TeleOp(name = "RingLauncher")
 public class RingLauncher extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

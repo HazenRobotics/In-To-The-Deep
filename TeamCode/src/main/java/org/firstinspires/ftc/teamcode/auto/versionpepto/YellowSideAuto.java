@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name = "YellowSideAuto")
+//@Autonomous(name = "YellowSideAuto")
 public class YellowSideAuto extends LinearOpMode {
 
     private FourEyesRobot robot;

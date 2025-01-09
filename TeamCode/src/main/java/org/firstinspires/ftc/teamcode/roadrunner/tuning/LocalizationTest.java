@@ -18,10 +18,10 @@ import org.firstinspires.ftc.teamcode.utils.localization.LimeLightWrapper;
 @Config
 public class LocalizationTest extends LinearOpMode {
 
-    public static double StartingPositionX = -12;
+    public static double StartingPositionX = 0;
 
-    public static double StartingPositionY = -66;
-    public static double StartingPositionH = 180;
+    public static double StartingPositionY = 0;
+    public static double StartingPositionH = 0;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -46,21 +46,21 @@ public class LocalizationTest extends LinearOpMode {
                 ));
 
                 drive.updatePoseEstimate();
-                PrimaryLocalizer localizer = (PrimaryLocalizer) (drive.localizer);
-                localizer.setColor(LimeLightWrapper.Color.RED_SIDE);
-                Pose2d pose = localizer.getPosition();
+//                PrimaryLocalizer localizer = (PrimaryLocalizer) (drive.localizer);
+//                localizer.setColor(LimeLightWrapper.Color.RED_SIDE);
+//                Pose2d pose = localizer.getPosition();
 //                Pose2d LL = localizer.getLocalizers()[2].getPosition();
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
                 telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
-                telemetry.addLine("\n"+localizer.allLocalizersToString());
+//                telemetry.addLine("\n"+localizer.allLocalizersToString());
                 telemetry.update();
 
                 TelemetryPacket packet = new TelemetryPacket();
                 packet.fieldOverlay().setStroke("#3F51B5");
                 Drawing.drawRobot(packet.fieldOverlay(), drive.pose);
-                packet.fieldOverlay().setStroke("#FF0000");
-                Drawing.drawRobot(packet.fieldOverlay(), pose);
+//                packet.fieldOverlay().setStroke("#FF0000");
+//                Drawing.drawRobot(packet.fieldOverlay(), pose);
                 packet.fieldOverlay().setStroke("#00FF00");
 //                Drawing.drawRobot(packet.fieldOverlay(), LL);
                 FtcDashboard.getInstance().sendTelemetryPacket(packet);

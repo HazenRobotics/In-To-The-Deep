@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -32,6 +33,7 @@ public class ActiveIntakeV2 {
         colorSensor = new ColorSensor(hardwareMap);
         led = new IndicatorLight(hardwareMap);
 
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void toggleBackDoor() {
@@ -52,11 +54,19 @@ public class ActiveIntakeV2 {
         backDoor.setPosition(0.489);
         downDoor=false;
     }
+
+    public boolean isEjectorDown(){
+        return downDoor;
+    }
+
     public void setPower(double power) {
         intake.setPower(power);
         if(intake.getPower()!=0) {
             dropDown();
         }
+    }
+    public double getPower(){
+        return intake.getPower();
     }
 
     public ColorSensor.Color checkIntakeState(){

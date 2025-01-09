@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.versionpepto.Lift;
 import org.firstinspires.ftc.teamcode.utils.sensors.UltrasonicSensor;
 import org.firstinspires.ftc.teamcode.utils.TelemetryRecorder;
 
-@Autonomous(name="YellowSideAutoNoSpecimen")
+//@Autonomous(name="YellowSideAutoNoSpecimen")
 public class YellowSideAutoNoSpecimen extends LinearOpMode {
 
 

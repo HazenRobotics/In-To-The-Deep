@@ -9,24 +9,27 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.MiscMethods;
 
-import java.util.HashMap;
+public class DepositArm {
 
-public class IntakeArm {
     double ARM_SPEED = 0.003;
     double WRIST_SPEED = 0.003;
+    static double ARM_PARALLEL = 0.5; //Left Servo Parallel
+    static double WRIST_PARALLEL = 0.665; //Wrist Servo Parallel
 
-    //Positions will be set relative to Parallel Position to simplify future repair efforts
-    static double ARM_PARALLEL = 0.789; //Left Servo Parallel
-    static double WRIST_PARALLEL = 0.723; //Wrist Servo Parallel
-    public enum IntakeArmStates{
+    double OPEN = 0.5;
+    double CLOSE = 1;
+
+    public enum PivotArmStates{
         reset(0,0),
+        TRASNFER(ARM_PARALLEL - 0.201, WRIST_PARALLEL - 0.554),//(0.299,0.121),//(ARM_PARALLEL - 0.16, WRIST_PARALLEL - 0.54), //0.34, 0.12
+        SPECIMEN_INTAKE(ARM_PARALLEL + 0.31, WRIST_PARALLEL + 0.319),//(0.81,0.984),//(ARM_PARALLEL + 0.293, WRIST_PARALLEL + 0.31), //0.793, 0.97
+        SPECIMEN_DEPOSIT(ARM_PARALLEL - 0.119, WRIST_PARALLEL - 0.173),//(0.381,0.492),//(ARM_PARALLEL, WRIST_PARALLEL + 0.19), //0.5, 0.85
+        SAMPLE_DEPOSIT(ARM_PARALLEL + 0.041, WRIST_PARALLEL + 0.098);//(0.541,0.763);//(ARM_PARALLEL - 0.09, WRIST_PARALLEL - 0.18);//0.41, 0.48
 
-        TRANSFER(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738),
-        HOVER(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093),//0.846,0.805
-        INTAKE(ARM_PARALLEL + 0.08,WRIST_PARALLEL - 0.125);//0.841,0.629
+
         private double arm;
         private double wrist;
-        IntakeArmStates(double armPos, double wristPos) {
+        PivotArmStates(double armPos, double wristPos) {
             arm = armPos;
             wrist = wristPos;
         }
@@ -48,63 +51,51 @@ public class IntakeArm {
         }
 
         public void resetPositions(){
-            TRANSFER.setArmWrist(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738);
-            HOVER.setArmWrist(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093);
-            INTAKE.setArmWrist(ARM_PARALLEL + 0.128,WRIST_PARALLEL + 0.08); //0.917, 0.803
+            TRASNFER.setArmWrist(ARM_PARALLEL - 0.228, WRIST_PARALLEL - 0.534);//0.272, 0.131
+            SPECIMEN_INTAKE.setArmWrist(ARM_PARALLEL + 0.298, WRIST_PARALLEL + 0.263);//0.798,0.928
+            SPECIMEN_DEPOSIT.setArmWrist(ARM_PARALLEL - 0.149, WRIST_PARALLEL - 0.154);//0.351, 0.511
+            SAMPLE_DEPOSIT.setArmWrist(ARM_PARALLEL + 0.041, WRIST_PARALLEL + 0.098);
         }
     }
-
-
-
-
     Servo armPivotLeft, armPivotRight;
     Servo wristServo;
-    HardwareMap hardwareMap;
+    Servo claw;
 
-    double pivRightOffset = -0.0417;
+    boolean isClawOpen;
 
-    IntakeArmStates currentState;
+    double pivRightOffset = 0.0;
 
+    PivotArmStates currentState;
 
-    public IntakeArm(HardwareMap hw) {
-        this(hw, "pivLeft", "pivRight","wrist");
+    public DepositArm(HardwareMap hw){
+        this(hw, "depositForward", "depositBackward", "depositWrist","claw");
     }
+    public DepositArm(HardwareMap hw, String pivLeft, String pivRight, String wrist, String clawName){
+        armPivotLeft = hw.get(Servo.class,pivLeft);
+        armPivotRight = hw.get(Servo.class,pivRight);
+        wristServo = hw.get(Servo.class,wrist);
 
-    public IntakeArm(HardwareMap hw, String pivLeftName, String pivRightName, String wristName){
-        armPivotLeft = hw.get(Servo.class,pivLeftName);
-        armPivotRight = hw.get(Servo.class,pivRightName);
-        wristServo = hw.get(Servo.class,wristName);
+//        armPivotRight.setDirection(Servo.Direction.REVERSE);
 
-        armPivotRight.setDirection(Servo.Direction.REVERSE);
-
-
-        hardwareMap=hw;
-        currentState = IntakeArmStates.TRANSFER;
-        IntakeArmStates.reset.resetPositions();
+        claw = hw.get(Servo.class, clawName);
+        PivotArmStates.reset.resetPositions();
     }
 
     public void init(){
-        goToPosition(IntakeArmStates.TRANSFER);
+        goToPosition(PivotArmStates.TRASNFER);
+        openClaw();
     }
 
-    public void goToPosition(IntakeArmStates state){
+    public void goToPosition(PivotArmStates state){
         currentState = state;
         setPositionArm(state.getArm());
         setPositionWrist(state.getWrist());
     }
 
-
-    /**
-     * Sets the exact position for the subsystem
-     * @param position Desired position between [0,1]
-     */
     public void setPositionWrist(double position) {
         wristServo.setPosition(position);
     }
-    /**
-     * Sets the exact position for the subsystem
-     * @param position Desired position between [0,1]
-     */
+
     public void setPositionArm(double position) {
         position = MiscMethods.clamp(position,0, 1 - pivRightOffset);
         armPivotLeft.setPosition(position);
@@ -134,42 +125,50 @@ public class IntakeArm {
         armPivotRight.setPosition(position + pivRightOffset);
     }
 
-    public void dropDownArm() {
-        setPositionArm(0);
-    }
-    public void bringUpArm() {
-        setPositionArm(0.5);
-    }
-    public void wristDeposit() {
-        setPositionWrist(0.25);
-    }
-    public void wristDown() {
-        setPositionWrist(0);
-    }
-
-
     public double getPositionArm(){
         return armPivotLeft.getPosition();
     }
     public double getPositionWrist(){
         return wristServo.getPosition();
     }
-    public IntakeArmStates getCurrentState(){
+
+    public PivotArmStates getCurrentState(){
         return currentState;
+    }
+
+    public void openClaw(){
+        claw.setPosition(OPEN);
+        isClawOpen = true;
+    }
+
+    public void closeClaw(){
+        claw.setPosition(CLOSE);
+        isClawOpen = false;
+    }
+
+    public void toggleClaw(){
+        if (isClawOpen){
+            closeClaw();
+        }else{
+            openClaw();
+        }
     }
 
     @NonNull
     @SuppressLint("DefaultLocale")
     public String toString(){
         return String.format("Current State: %s\n"+
-                "Left Pivot Position: %f\n" +
-                "Right Pivot Position: %f\n" +
-                "Right Pivot Offset: %f\n" +
-                "Wrist Position: %f\n",
+                        "Left Pivot Position: %f\n" +
+                        "Right Pivot Position: %f\n" +
+                        "Right Pivot Offset: %f\n" +
+                        "Wrist Position: %f\n" +
+                        "Claw Open: %b\n",
                 currentState,
                 armPivotLeft.getPosition(),
                 armPivotRight.getPosition(),
                 pivRightOffset,
-                wristServo.getPosition());
+                wristServo.getPosition(),
+                isClawOpen);
     }
+
 }

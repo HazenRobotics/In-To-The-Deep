@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.drivetrains.Mecanum;
 import org.firstinspires.ftc.teamcode.utils.sensors.UltrasonicSensor;
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 
-//@TeleOp(name="Sensor Test", group = "Subsystem Tests")
+@TeleOp(name="Sensor Test", group = "Subsystem Tests")
 public class DistanceTouchSensorTest extends LinearOpMode {
 
     Mecanum robot;

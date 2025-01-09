@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 import org.firstinspires.ftc.teamcode.utils.IndicatorLight;
 import org.firstinspires.ftc.teamcode.utils.sensors.ColorSensor;
 
-@TeleOp(name="Intake V2 Test", group="Subsystem Tests")
+//@TeleOp(name="Intake V2 Test", group="Subsystem Tests")
 public class IntakeV2Test extends LinearOpMode {
 
     @Override

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 import org.firstinspires.ftc.teamcode.vision.processors.SampleProcessor2;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@TeleOp(name="Pepto Bismal")
+//@TeleOp(name="Pepto Bismal")
 public class FourEyesTeleOp extends LinearOpMode {
 
     private boolean easterEgg = false;

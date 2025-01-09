@@ -20,6 +20,18 @@ public class IntakeV2CompleteTest extends LinearOpMode {
         arm.init();
         while(opModeIsActive()){
 
+
+            if(controller1.x.onPress()){
+                arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
+            }
+            if(controller1.y.onPress()){
+                arm.goToPosition(IntakeArm.IntakeArmStates.HOVER);
+            }
+            if(controller1.b.onPress()){
+                arm.goToPosition(IntakeArm.IntakeArmStates.INTAKE);
+            }
+
+
             if(controller1.a.onPress()){
                 intake.toggleBackDoor();
             }
@@ -27,12 +39,12 @@ public class IntakeV2CompleteTest extends LinearOpMode {
 
 
             if (gamepad1.dpad_up){
-                arm.setPositionArm(arm.getPositionArm() + 0.001);
+                arm.adjustPositionArm(1);
             }
             if (gamepad1.dpad_down){
-                arm.setPositionArm(arm.getPositionArm() - 0.001);
+                arm.adjustPositionArm(-1);
             }
-            arm.setPositionWrist(arm.getPositionWrist() + 0.0005 * (gamepad1.left_trigger - gamepad1.right_trigger));
+            arm.adjustPositionWrist((gamepad1.left_trigger - gamepad1.right_trigger));
 
 
             telemetry.addLine("Gamepad1 Dpad Up and Down for Arm Pivot");

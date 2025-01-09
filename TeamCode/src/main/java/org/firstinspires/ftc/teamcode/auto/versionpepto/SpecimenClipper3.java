@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.vision.processors.SampleProcessor2;
 import org.firstinspires.ftc.teamcode.vision.processors.Specimen;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@Autonomous(name="SpecimenClipper3")
+//@Autonomous(name="SpecimenClipper3")
 public class SpecimenClipper3 extends LinearOpMode {
 
     boolean debugging = true;
