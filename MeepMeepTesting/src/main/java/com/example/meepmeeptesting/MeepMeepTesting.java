@@ -1,7 +1,9 @@
 package com.example.meepmeeptesting;
 
+import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
@@ -57,7 +59,8 @@ public class MeepMeepTesting {
 
         double inner = 49, middle = 59, outer = 69;
         double sampleY = -48;
-
+        Pose2d outerLineUp = new Pose2d(middle-5, sampleY+1,Math.toRadians(90));
+        Pose2d outerIntake = MiscMethods.lerp(outerLineUp, new Pose2d(outer, -24, 0), 0.1 );
         Pose2d specIntake = new Pose2d(36, -64, Math.toRadians(90));
         bot.runAction(bot.getDrive().actionBuilder(startPos)
                         .lineToY(barPos.position.y)
@@ -65,43 +68,74 @@ public class MeepMeepTesting {
                         .setReversed(true)
 //                        .lineToY(barPos.position.y - 5)
 
-                        .splineToConstantHeading(new Vector2d(inner,sampleY),Math.toRadians(90))
-                        .waitSeconds(3)
-                        .strafeTo(new Vector2d(middle, sampleY))
-                        .waitSeconds(3)
-                        .turnTo(Math.toRadians(65))
-                        .waitSeconds(3)
-
-                .strafeToLinearHeading(specIntake.position,specIntake.heading)
-                .waitSeconds(0.5)
-                .splineToConstantHeading(barPos.position,barPos.heading)
-
-                .waitSeconds(0.01)
-                .setReversed(true)
-                .splineTo(specIntake.position,Math.toRadians(-90))
-                .waitSeconds(0.5)
-                .setReversed(false)
-                .splineToConstantHeading(barPos.position,barPos.heading)
-
-                .waitSeconds(0.01)
-                .setReversed(true)
-                .splineTo(specIntake.position,Math.toRadians(-90))
-                .waitSeconds(0.5)
-                .setReversed(false)
-                .splineToConstantHeading(barPos.position,barPos.heading)
-
-                .waitSeconds(0.01)
-                .setReversed(true)
-                .splineTo(specIntake.position,Math.toRadians(-90))
-                .waitSeconds(0.5)
-                .setReversed(false)
-                .splineToConstantHeading(barPos.position,barPos.heading)
+                .splineToLinearHeading(new Pose2d(middle-5, sampleY+1,Math.toRadians(185)),Math.toRadians(45))
+                                .turnTo(Math.toRadians(50))
+//                        .splineToConstantHeading(new Vector2d(inner,sampleY),Math.toRadians(90))
+//                        .waitSeconds(3)
+//                        .strafeTo(new Vector2d(middle, sampleY))
+//                        .waitSeconds(3)
+//                        .turnTo(Math.toRadians(65))
+//                        .waitSeconds(3)
+//
+//                .strafeToLinearHeading(specIntake.position,specIntake.heading)
+//                .waitSeconds(0.5)
+//                .splineToConstantHeading(barPos.position,barPos.heading)
+//
+//
+////
+//                .waitSeconds(0.01)
+//                .setReversed(true)
+//                .splineTo(specIntake.position,Math.toRadians(-90))
+//                .waitSeconds(0.5)
+//                .setReversed(false)
+//                .splineTo(barPos.position,barPos.heading)
+//?
+//                .waitSeconds(0.01)
+//                .setReversed(true)
+//                .splineTo(specIntake.position,Math.toRadians(-90))
+//                .waitSeconds(0.5)
+//                .setReversed(false)
+//                .splineToConstantHeading(barPos.position,barPos.heading)
+//
+//                .waitSeconds(0.01)
+//                .setReversed(true)
+//                .splineTo(specIntake.position,Math.toRadians(-90))
+//                .waitSeconds(0.5)
+//                .setReversed(false)
+//                .splineToConstantHeading(barPos.position,barPos.heading)
 
 
                 .build());
         return bot;
     }
 
+    public static RoadRunnerBotEntity V2_colorBot2(MeepMeep meepMeep){
+        RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .build();
+
+        double inner = 49, middle = 59, outer = 69;
+        double sampleY = -48;
+
+        Pose2d innerAnchor = MiscMethods.inverseLerp(new Pose2d(inner,-25,0),24, -120 );
+        Pose2d middleAnchor = MiscMethods.inverseLerp(new Pose2d(middle, -25, 0),24, -120);
+
+        bot.runAction(bot.getDrive().actionBuilder(startColor)
+                        .lineToY(-34)
+                        .waitSeconds(0.1)
+                        .setReversed(true)
+                        .splineToLinearHeading(new Pose2d(innerAnchor.position, innerAnchor.heading.plus(Math.toRadians(180)).toDouble()), Math.toRadians(45))
+                        .strafeToLinearHeading(innerAnchor.position,Math.toRadians(-30), new AngularVelConstraint(Math.PI))
+
+                        .strafeToLinearHeading(middleAnchor.position, middleAnchor.heading.plus(Math.toRadians(180)).toDouble())
+                        .strafeToLinearHeading(innerAnchor.position.plus(new Vector2d(10.1,0.1)), Math.toRadians(-30), new AngularVelConstraint(Math.PI))
+
+                .strafeToLinearHeading(innerAnchor.position.plus(new Vector2d(20,0)), innerAnchor.heading.plus(Math.toRadians(180)).toDouble())
+                        .strafeToLinearHeading(innerAnchor.position.plus(new Vector2d(10,-10)),Math.toRadians(-10))
+                .build());
+        return bot;
+    }
     public static RoadRunnerBotEntity V2_yellowBot(MeepMeep meepMeep){
         RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
@@ -149,7 +183,7 @@ public class MeepMeepTesting {
                         //Raise lift to deposit
                         //Open Claw
                         .lineToY(bucketPos.position.y + 1)
-                        .splineTo(submerisbleIntake.position, submerisbleIntake.heading)
+                        .splineToLinearHeading(new Pose2d(submerisbleIntake.position, Math.toRadians(180)), Math.toRadians(0))
                         //Sweep, extend intake
 
 
@@ -551,6 +585,15 @@ class MiscMethods {
                 anchor.position.x + dist * Math.cos(heading),
                 anchor.position.y + dist * Math.sin(heading),
                 heading
+        );
+    }
+
+    public static Pose2d inverseLerp(Pose2d anchor, double dist, double angleDegree){
+        double rad = Math.toRadians(angleDegree);
+        return new Pose2d(
+                anchor.position.x + Math.cos(rad) * dist,
+                anchor.position.y + Math.sin(rad) * dist,
+                rad
         );
     }
 }

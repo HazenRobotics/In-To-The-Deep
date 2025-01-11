@@ -35,4 +35,13 @@ public class MiscMethods {
                 heading
         );
     }
+
+    public static Pose2d inverseLerp(Pose2d anchor, double dist, double angleDegree){
+        double rad = Math.toRadians(angleDegree);
+        return new Pose2d(
+                anchor.position.x + Math.cos(rad) * dist,
+                anchor.position.y + Math.sin(rad) * dist,
+                rad
+        );
+    }
 }

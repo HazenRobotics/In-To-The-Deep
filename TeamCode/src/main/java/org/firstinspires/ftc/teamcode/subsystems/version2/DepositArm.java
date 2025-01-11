@@ -13,18 +13,26 @@ public class DepositArm {
 
     double ARM_SPEED = 0.003;
     double WRIST_SPEED = 0.003;
-    static double ARM_PARALLEL = 0.5; //Left Servo Parallel
-    static double WRIST_PARALLEL = 0.665; //Wrist Servo Parallel
+    public final static double ARM_PARALLEL = 0.483; //Left Servo Parallel
+    public final static double WRIST_PARALLEL = 0.643; //Wrist Servo Parallel
 
     double OPEN = 0.5;
+    double OPEN_AUTO = 0.75;
     double CLOSE = 1;
 
     public enum PivotArmStates{
         reset(0,0),
-        TRASNFER(ARM_PARALLEL - 0.201, WRIST_PARALLEL - 0.554),//(0.299,0.121),//(ARM_PARALLEL - 0.16, WRIST_PARALLEL - 0.54), //0.34, 0.12
-        SPECIMEN_INTAKE(ARM_PARALLEL + 0.31, WRIST_PARALLEL + 0.319),//(0.81,0.984),//(ARM_PARALLEL + 0.293, WRIST_PARALLEL + 0.31), //0.793, 0.97
-        SPECIMEN_DEPOSIT(ARM_PARALLEL - 0.119, WRIST_PARALLEL - 0.173),//(0.381,0.492),//(ARM_PARALLEL, WRIST_PARALLEL + 0.19), //0.5, 0.85
-        SAMPLE_DEPOSIT(ARM_PARALLEL + 0.041, WRIST_PARALLEL + 0.098);//(0.541,0.763);//(ARM_PARALLEL - 0.09, WRIST_PARALLEL - 0.18);//0.41, 0.48
+        TRASNFER(ARM_PARALLEL - 0.2, WRIST_PARALLEL - 0.521),
+        SPECIMEN_INTAKE(ARM_PARALLEL + 0.252, WRIST_PARALLEL + 0.315),
+        SPECIMEN_DEPOSIT(ARM_PARALLEL - 0.119, WRIST_PARALLEL - 0.173),
+        SAMPLE_DEPOSIT(ARM_PARALLEL + 0.004, WRIST_PARALLEL + 0.182),
+        SPECIMEN_DEPOSIT_PRELOAD(ARM_PARALLEL-0.29,WRIST_PARALLEL),
+        SPECIMEN_INTAKE_AUTO(ARM_PARALLEL + 0.295, WRIST_PARALLEL + 0.283),
+
+        SPECIMEN_INTAKE_SIDEWAYS(ARM_PARALLEL + 0.517, WRIST_PARALLEL -0.237),
+        SPECIMEN_DEPOSIT_SIDEWAYS(ARM_PARALLEL - 0.117, WRIST_PARALLEL - 0.25),
+        PARK_ARM(ARM_PARALLEL + 0.128, WRIST_PARALLEL);
+
 
 
         private double arm;
@@ -51,10 +59,10 @@ public class DepositArm {
         }
 
         public void resetPositions(){
-            TRASNFER.setArmWrist(ARM_PARALLEL - 0.228, WRIST_PARALLEL - 0.534);//0.272, 0.131
-            SPECIMEN_INTAKE.setArmWrist(ARM_PARALLEL + 0.298, WRIST_PARALLEL + 0.263);//0.798,0.928
-            SPECIMEN_DEPOSIT.setArmWrist(ARM_PARALLEL - 0.149, WRIST_PARALLEL - 0.154);//0.351, 0.511
-            SAMPLE_DEPOSIT.setArmWrist(ARM_PARALLEL + 0.041, WRIST_PARALLEL + 0.098);
+            TRASNFER.setArmWrist(ARM_PARALLEL - 0.2, WRIST_PARALLEL - 0.521);//0.272, 0.131
+            SPECIMEN_INTAKE.setArmWrist(ARM_PARALLEL + 0.252, WRIST_PARALLEL + 0.315);//0.798,0.928
+            SPECIMEN_DEPOSIT.setArmWrist(ARM_PARALLEL - 0.119, WRIST_PARALLEL - 0.173);//0.351, 0.511
+            SAMPLE_DEPOSIT.setArmWrist(ARM_PARALLEL + 0.004, WRIST_PARALLEL + 0.182);
         }
     }
     Servo armPivotLeft, armPivotRight;
@@ -140,6 +148,10 @@ public class DepositArm {
         claw.setPosition(OPEN);
         isClawOpen = true;
     }
+    public void openClawAuto(){
+        claw.setPosition(OPEN);
+        isClawOpen = true;
+    }
 
     public void closeClaw(){
         claw.setPosition(CLOSE);
@@ -158,17 +170,21 @@ public class DepositArm {
     @SuppressLint("DefaultLocale")
     public String toString(){
         return String.format("Current State: %s\n"+
-                        "Left Pivot Position: %f\n" +
-                        "Right Pivot Position: %f\n" +
-                        "Right Pivot Offset: %f\n" +
+                        "Forward Pivot Position: %f\n" +
+                        "Backward Pivot Position: %f\n" +
+                        "Backward Pivot Offset: %f\n" +
                         "Wrist Position: %f\n" +
-                        "Claw Open: %b\n",
+                        "Claw Open: %b\n\n"+
+                "Arm From Parallel: %f\n"+
+                "Wrist From Parallel: %f\n",
                 currentState,
                 armPivotLeft.getPosition(),
                 armPivotRight.getPosition(),
                 pivRightOffset,
                 wristServo.getPosition(),
-                isClawOpen);
+                isClawOpen,
+                (armPivotLeft.getPosition() - ARM_PARALLEL),
+                (wristServo.getPosition() - WRIST_PARALLEL));
     }
 
 }
