@@ -24,9 +24,18 @@ public class DepositLift extends PIDController {
 
     public enum LiftStates {
         TRANSFER(0), //Default Position
-        SPECIMEN_INTAKE(190), //Specimen Intake Position
-        SPECIMEN_DEPOSIT(210), //Specimen Deposit Position
-        SAMPLE_DEPOSIT(720); // Sample Deposit Position
+        SPECIMEN_INTAKE(185), //Specimen Intake Position
+        SPECIMEN_DEPOSIT(230), //Specimen Deposit Position
+        SAMPLE_DEPOSIT(720),// Sample Deposit Position
+        SPECIMEN_DEPOSIT_PRELOAD(415),
+        SPECIMEN_INTAKE_AUTO(200),
+        SPECIMEN_INTAKE_RAISE(SPECIMEN_INTAKE.getPosition() + 40),
+
+        SPECIMEN_INTAKE_SIDEWAYS(210),
+        SPECIMEN_DEPOSIT_SIDEWAYS(250);
+
+
+
 
         double position;
         LiftStates(double position){
@@ -59,7 +68,7 @@ public class DepositLift extends PIDController {
     }
 
     public DepositLift(HardwareMap hw, String nameLeft, String nameRight, String nameEncoder){
-        super(0.025,0.0,0.001,0.0);
+        super(0.035,0.0,0.001,0.0);
         liftLeft = hw.get(DcMotorEx.class, nameLeft);
         liftRight = hw.get(DcMotorEx.class, nameRight);
         encoder = new OverflowEncoder(new RawEncoder(hw.get(DcMotorEx.class, nameEncoder)));
@@ -144,12 +153,18 @@ public class DepositLift extends PIDController {
         super.setTarget(targetPosition);
         return targetPosition;
     }
+    public void setPositionInverse(double power){
+        int targetPosition = (int) (super.getTarget() + (power * LIFT_SPEED));
+        LiftStates.TRANSFER.setPosition(targetPosition);
+        liftOffset = targetPosition;
+        super.setTarget(targetPosition);
+    }
 
     public void resetLiftOffset(){
         liftOffset = encoder.getPositionAndVelocity().position;
         LiftStates.TRANSFER.setPosition(0);
-        LiftStates.SPECIMEN_INTAKE.setPosition(190);
-        LiftStates.SPECIMEN_DEPOSIT.setPosition(210);
+        LiftStates.SPECIMEN_INTAKE.setPosition(230);
+        LiftStates.SPECIMEN_DEPOSIT.setPosition(245);
         LiftStates.SAMPLE_DEPOSIT.setPosition(720);
 
 

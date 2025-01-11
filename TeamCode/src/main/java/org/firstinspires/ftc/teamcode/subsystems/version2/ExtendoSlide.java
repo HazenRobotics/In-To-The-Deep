@@ -22,10 +22,10 @@ public class ExtendoSlide extends PIDController {
 
     double EXTENDO_SPEED = 40;
 
-    static double MAX_EXTENSION = 500;
+    static double MAX_EXTENSION = 400;
     public enum ExtendoStates{
         TRANSFER(0),
-        HALF_EXTEND(0),
+        HALF_EXTEND(MAX_EXTENSION/2),
         FULL_EXTEND(MAX_EXTENSION),
 
         VARIABLE_EXTEND(TRANSFER.getPosition() + 50);
@@ -116,9 +116,9 @@ public class ExtendoSlide extends PIDController {
     public double updatePID(){
         double power = super.calculate(getPosition(), getForwardFeed());
         extendo.setPower(power);
-        if (extendo.getCurrent(CurrentUnit.AMPS) > 5 && Math.abs(getVelocity()) < 5){
-            extendoOffset = getPosition();
-        }
+//        if (extendo.getCurrent(CurrentUnit.AMPS) > 5 && Math.abs(getVelocity()) < 5){
+//            extendoOffset = getPosition();
+//        }
         return power;
     }
     //-----------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ public class ExtendoSlide extends PIDController {
      * @return [int] Returns the new target position of the lift in ticks.
      */
     public int setPosition(double power){
-        int targetPosition = (int) Math.min(super.getTarget() + (power * EXTENDO_SPEED), MAX_EXTENSION);
+        int targetPosition = (int) MiscMethods.clamp(super.getTarget() + (power * EXTENDO_SPEED), extendoOffset, MAX_EXTENSION);
 //        currentState.setPosition(targetPosition);
         if (extendoOffset + targetPosition > 50){
             currentState = ExtendoStates.VARIABLE_EXTEND;
@@ -154,6 +154,13 @@ public class ExtendoSlide extends PIDController {
         super.setTarget(targetPosition);
         return targetPosition;
     }
+    public void setPositionInverse(double power){
+        int targetPosition = (int) Math.min(super.getTarget() + (power * EXTENDO_SPEED), MAX_EXTENSION);
+        ExtendoStates.TRANSFER.setPosition(targetPosition);
+        extendoOffset = targetPosition;
+        super.setTarget(targetPosition);
+    }
+
     public int setPositionRestricted(double power){
         int targetPosition = (int) MiscMethods.clamp(super.getTarget() + (power * EXTENDO_SPEED), extendoOffset ,MAX_EXTENSION);
 //        currentState.setPosition(targetPosition);
@@ -170,7 +177,7 @@ public class ExtendoSlide extends PIDController {
     public void resetExtendoOffset(){
         extendoOffset = encoder.getPositionAndVelocity().position;
         ExtendoStates.TRANSFER.setPosition(0);
-        ExtendoStates.HALF_EXTEND.setPosition(0);
+        ExtendoStates.HALF_EXTEND.setPosition(MAX_EXTENSION/2);
         ExtendoStates.FULL_EXTEND.setPosition(MAX_EXTENSION);
     }
 

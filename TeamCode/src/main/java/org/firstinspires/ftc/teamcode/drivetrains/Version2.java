@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.version2.ActiveIntakeV2;
 import org.firstinspires.ftc.teamcode.subsystems.version2.DepositArm;
@@ -14,16 +13,16 @@ import org.firstinspires.ftc.teamcode.subsystems.version2.DepositLift;
 import org.firstinspires.ftc.teamcode.subsystems.version2.ExtendoSlide;
 import org.firstinspires.ftc.teamcode.subsystems.version2.IntakeArm;
 import org.firstinspires.ftc.teamcode.subsystems.version2.Sweeper;
+import org.firstinspires.ftc.teamcode.utils.sensors.ColorSensor;
 
 public class Version2 extends Mecanum{
 
-    ActiveIntakeV2 intake;
-    IntakeArm arm;
-    ExtendoSlide extendo;
-    DepositLift lift;
-    Sweeper sweeper;
-
-    DepositArm deposit;
+    public ActiveIntakeV2 intake;
+    public IntakeArm arm;
+    public ExtendoSlide extendo;
+    public DepositLift lift;
+    public Sweeper sweeper;
+    public DepositArm deposit;
 
     boolean delayEjector, delayArm, delaySpecDeposit;
 
@@ -48,6 +47,12 @@ public class Version2 extends Mecanum{
     }
     public void completeInit(){
         init();
+        extendo.resetExtendoOffset();
+        lift.resetLiftOffset();
+    }
+    public void specAutoInit(){
+        arm.init();
+        sweeper.init();
         extendo.resetExtendoOffset();
         lift.resetLiftOffset();
     }
@@ -198,6 +203,26 @@ public class Version2 extends Mecanum{
     public void disableAutoPID(){
         autoPIDAcitve = false;
     }
+
+    public Action waitForLift(double waitSeconds){
+        return new WaitForLift(waitSeconds);
+    }
+    public Action waitForLift(double waitSeconds, int posError, int velError){
+        return new WaitForLift(waitSeconds, posError, velError);
+    }
+
+    public Action waitForExtendo(long waitSeconds){
+        return new WaitForExtendo(waitSeconds);
+    }
+    public Action waitForExtendo(long waitSeconds, int posError, int velError){
+        return new WaitForExtendo(waitSeconds, posError, velError);
+    }
+    public Action waitForExtendo(long waitSeconds, int posError, int velError, boolean useColor){
+        return new WaitForExtendo(waitSeconds, posError, velError, useColor);
+    }
+    public Action waitForExtendo(long waitSeconds, boolean useColor){
+        return new WaitForExtendo(waitSeconds, 30, 10, useColor);
+    }
     class AutoPID implements Action{
 
         @Override
@@ -211,19 +236,32 @@ public class Version2 extends Mecanum{
 
         long endTime;
         int positionError, velocityError;
+
+        boolean init;
         public WaitForLift(double waitSeconds){
             this(waitSeconds, 50, 20);
         }
         public WaitForLift(double waitSeconds, int posError, int velError){
-            endTime =(long) (System.currentTimeMillis() + waitSeconds * 1000);
+            endTime =(long) waitSeconds * 1000;
             positionError = posError;
             velocityError = velError;
+            this.init = true;
         }
 
+        /**
+         * Returns true if this is is supposed to loop again, returns false to stop
+         * @param telemetryPacket
+         * @return
+         */
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            return (System.currentTimeMillis() < endTime) ||
-                    (Math.abs(lift.getTarget() - lift.getPosition()) < positionError &&
+            if (init){
+                this.endTime += System.currentTimeMillis();
+                init = false;
+                return true;
+            }
+            return (System.currentTimeMillis() < endTime) &&
+                    (Math.abs(lift.getTarget() - lift.getPosition()) > positionError ||
                             lift.getVelocity() > velocityError);
         }
     }
@@ -231,20 +269,50 @@ public class Version2 extends Mecanum{
 
         long endTime;
         int positionError, velocityError;
-        public WaitForExtendo(double waitSeconds){
-            this(waitSeconds, 50, 20);
+        boolean init, useColor;
+        public WaitForExtendo(long waitSeconds){
+            this(waitSeconds, 30, 10);
         }
-        public WaitForExtendo(double waitSeconds, int posError, int velError){
-            endTime =(long) (System.currentTimeMillis() + waitSeconds * 1000);
-            positionError = posError;
-            velocityError = velError;
+        public WaitForExtendo(long waitSeconds, int posError, int velError){
+            this.endTime = waitSeconds * 1000;
+            this.positionError = posError;
+            this.velocityError = velError;
+            this.init = true;
         }
 
+        public WaitForExtendo(long waitSeconds, int posError, int velError, boolean useColor){
+            this(waitSeconds,posError,velError);
+            this.useColor = useColor;
+        }
+
+        /**
+         * Returns true if this is is supposed to loop again, returns false to stop
+         * @param telemetryPacket
+         * @return
+         */
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            return (System.currentTimeMillis() < endTime) ||
-                    (Math.abs(extendo.getTarget() - extendo.getPosition()) < positionError &&
-                            extendo.getVelocity() > velocityError);
+            //If color sensor is required, this will automatically end the wait when the color sensor detects something
+            if (init){
+                this.endTime += System.currentTimeMillis();
+                init = false;
+                return true;
+            }
+            if (useColor){
+                return (System.currentTimeMillis() < this.endTime) &&
+                        (
+                                Math.abs(extendo.getTarget() - extendo.getPosition()) > this.positionError ||
+                                        Math.abs(extendo.getVelocity()) > this.velocityError
+                        )
+                        &&
+                        intake.checkIntakeState() == ColorSensor.Color.None;
+            }
+            //Otherwise, default to the standard time/position checks
+            return (System.currentTimeMillis() < this.endTime) &&
+                    (
+                            Math.abs(extendo.getTarget() - extendo.getPosition()) > this.positionError ||
+                            Math.abs(extendo.getVelocity()) > this.velocityError
+                    );
         }
     }
 
@@ -304,9 +372,11 @@ public class Version2 extends Mecanum{
             return;
         }
         if(lift.getCurrentState() == DepositLift.LiftStates.TRANSFER){
-            lift.setPosition(power);
-        }else{
-            extendo.setPosition(power);
+            lift.setPositionInverse(power);
+        }
+        //One of these should always be true, but this is just an extra safe guard
+        else {
+            extendo.setPositionInverse(power);
         }
     }
     public void sweeperSweeper(boolean sweep){

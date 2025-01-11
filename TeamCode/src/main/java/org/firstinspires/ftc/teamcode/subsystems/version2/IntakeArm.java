@@ -16,14 +16,17 @@ public class IntakeArm {
     double WRIST_SPEED = 0.003;
 
     //Positions will be set relative to Parallel Position to simplify future repair efforts
-    static double ARM_PARALLEL = 0.789; //Left Servo Parallel
-    static double WRIST_PARALLEL = 0.723; //Wrist Servo Parallel
+    static double ARM_PARALLEL = 0.783; //Left Servo Parallel
+    static double WRIST_PARALLEL = 0.761; //Wrist Servo Parallel
     public enum IntakeArmStates{
         reset(0,0),
 
         TRANSFER(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738),
         HOVER(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093),//0.846,0.805
-        INTAKE(ARM_PARALLEL + 0.08,WRIST_PARALLEL - 0.125);//0.841,0.629
+        INTAKE(ARM_PARALLEL + 0.11,WRIST_PARALLEL),
+        PUSH(ARM_PARALLEL+0.179, WRIST_PARALLEL+0.195),
+        SAMPLE_INTAKE_AUTO(ARM_PARALLEL + 0.17, WRIST_PARALLEL + 0.15);//0.841,0.629
+
         private double arm;
         private double wrist;
         IntakeArmStates(double armPos, double wristPos) {
@@ -50,7 +53,7 @@ public class IntakeArm {
         public void resetPositions(){
             TRANSFER.setArmWrist(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738);
             HOVER.setArmWrist(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093);
-            INTAKE.setArmWrist(ARM_PARALLEL + 0.128,WRIST_PARALLEL + 0.08); //0.917, 0.803
+            INTAKE.setArmWrist(ARM_PARALLEL + 0.11,WRIST_PARALLEL); //0.917, 0.803
         }
     }
 
@@ -165,11 +168,14 @@ public class IntakeArm {
                 "Left Pivot Position: %f\n" +
                 "Right Pivot Position: %f\n" +
                 "Right Pivot Offset: %f\n" +
-                "Wrist Position: %f\n",
+                "Wrist Position: %f\n\n"+
+                "Arm From Parallel: %f\n"+ "Wrist From Parallel: %f\n",
                 currentState,
                 armPivotLeft.getPosition(),
                 armPivotRight.getPosition(),
                 pivRightOffset,
-                wristServo.getPosition());
+                wristServo.getPosition(),
+                (armPivotLeft.getPosition() - ARM_PARALLEL),
+                (wristServo.getPosition() - WRIST_PARALLEL));
     }
 }

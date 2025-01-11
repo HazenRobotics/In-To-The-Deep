@@ -16,9 +16,9 @@ public class DepositArmV2Test extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        boolean leftPiv = false, rightPiv = false, wristPiv = false, intakeArm = false;
+        boolean leftPiv = false, rightPiv = false, wristPiv = false, intakeArm = true;
         GamepadEvents controller1 = new GamepadEvents(gamepad1);
-        while (!opModeIsActive()){
+        while (opModeInInit()){
             telemetry.addLine("Please use gamepad1 to initialize intake subsystem");
             if(controller1.a.onPress()){
                 leftPiv = !leftPiv;
@@ -49,8 +49,8 @@ public class DepositArmV2Test extends LinearOpMode {
 
         if (intakeArm){
             arm = new DepositArm(hardwareMap);
-            arm.setPositionArm(0.5);
-            arm.setPositionWrist(0.5);
+            arm.setPositionArm(DepositArm.ARM_PARALLEL);
+            arm.setPositionWrist(DepositArm.WRIST_PARALLEL);
             telemetry.addLine("Intake Arm Initialized");
         }else{
             if (leftPiv){
