@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -72,6 +73,14 @@ public class Version2 extends Mecanum{
         }else{
             intake.dropDown();
         }
+    }
+    public void sampleIntake(){
+        lift.goToPosition(DepositLift.LiftStates.TRANSFER);
+        deposit.goToPosition(DepositArm.PivotArmStates.TRASNFER);
+        deposit.openClaw();
+        arm.goToPosition(IntakeArm.IntakeArmStates.INTAKE);
+        extendo.goToPosition(ExtendoSlide.ExtendoStates.FULL_EXTEND);
+        activateIntake();
     }
     public void specimenDeposit(){
         lift.goToPosition(DepositLift.LiftStates.SPECIMEN_DEPOSIT);
