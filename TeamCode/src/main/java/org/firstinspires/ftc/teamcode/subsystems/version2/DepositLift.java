@@ -68,7 +68,7 @@ public class DepositLift extends PIDController {
     }
 
     public DepositLift(HardwareMap hw, String nameLeft, String nameRight, String nameEncoder){
-        super(0.035,0.0,0.001,0.0);
+        super(0.025,0.0,0.001,0.0);
         liftLeft = hw.get(DcMotorEx.class, nameLeft);
         liftRight = hw.get(DcMotorEx.class, nameRight);
         encoder = new OverflowEncoder(new RawEncoder(hw.get(DcMotorEx.class, nameEncoder)));
@@ -153,18 +153,12 @@ public class DepositLift extends PIDController {
         super.setTarget(targetPosition);
         return targetPosition;
     }
-    public void setPositionInverse(double power){
-        int targetPosition = (int) (super.getTarget() + (power * LIFT_SPEED));
-        LiftStates.TRANSFER.setPosition(targetPosition);
-        liftOffset = targetPosition;
-        super.setTarget(targetPosition);
-    }
 
     public void resetLiftOffset(){
         liftOffset = encoder.getPositionAndVelocity().position;
         LiftStates.TRANSFER.setPosition(0);
-        LiftStates.SPECIMEN_INTAKE.setPosition(230);
-        LiftStates.SPECIMEN_DEPOSIT.setPosition(245);
+        LiftStates.SPECIMEN_INTAKE.setPosition(190);
+        LiftStates.SPECIMEN_DEPOSIT.setPosition(210);
         LiftStates.SAMPLE_DEPOSIT.setPosition(720);
 
 
