@@ -81,7 +81,6 @@ public class YellowSideAuto extends LinearOpMode {
         //Auto Begins
         timer.reset();
 
-
         Actions.runBlocking(new ParallelAction(
                 robot.autoPID(),
                 roadRunnerDrive.actionBuilder(startPosition)
