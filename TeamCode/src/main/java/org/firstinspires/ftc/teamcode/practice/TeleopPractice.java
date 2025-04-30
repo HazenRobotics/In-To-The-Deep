@@ -11,6 +11,7 @@ public class TeleopPractice extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         ArmPractice arm = new ArmPractice(hardwareMap, "armLeft","armRight");
         GamepadEvents gamepad = new GamepadEvents(gamepad1);
+
         IntakePractice intake = new IntakePractice(hardwareMap, "intake");
         DrivePractice drive = new DrivePractice(hardwareMap, "FLM", "BLM", "FRM", "BRM");
         waitForStart();
