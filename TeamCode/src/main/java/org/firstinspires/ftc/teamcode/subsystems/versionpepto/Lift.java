@@ -42,7 +42,7 @@ public class Lift {
 
     }
 
-    private int MAX_HEIGHT_POSITION = 4300;//ticks
+    private int MAX_HEIGHT_POSITION = 2300;//ticks
     private LiftStates currentState;
 
     private HashMap<LiftStates, Integer> liftPositions;
