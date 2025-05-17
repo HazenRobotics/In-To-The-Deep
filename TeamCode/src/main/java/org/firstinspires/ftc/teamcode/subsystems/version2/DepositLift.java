@@ -154,6 +154,14 @@ public class DepositLift extends PIDController {
         return targetPosition;
     }
 
+    public int setPositionInverse(double power){
+        int targetPosition = (int) (super.getTarget() + (power * LIFT_SPEED));
+        currentState.setPosition(targetPosition);
+        super.setTarget(targetPosition);
+        return targetPosition;
+    }
+
+
     public void resetLiftOffset(){
         liftOffset = encoder.getPositionAndVelocity().position;
         LiftStates.TRANSFER.setPosition(0);

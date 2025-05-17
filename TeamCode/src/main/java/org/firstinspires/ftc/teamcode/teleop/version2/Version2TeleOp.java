@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drivetrains.Version2;
 import org.firstinspires.ftc.teamcode.subsystems.version2.DepositArm;
+import org.firstinspires.ftc.teamcode.subsystems.version2.DepositArmV2;
 import org.firstinspires.ftc.teamcode.subsystems.version2.DepositLift;
 import org.firstinspires.ftc.teamcode.subsystems.version2.ExtendoSlide;
 import org.firstinspires.ftc.teamcode.subsystems.version2.IntakeArm;
@@ -104,14 +105,14 @@ public class Version2TeleOp extends LinearOpMode {
             if(controller2.dpad_down.onPress()){
                 robot.inverseTriggerControls(-0.2);
             }
-            if (controller2.dpad_right.onPress() && controller2.a.getValue()){
-                robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.FULL_EXTEND);
-                robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE_SIDEWAYS);
-                robot.arm.goToPosition(IntakeArm.IntakeArmStates.HOVER);
-                robot.deposit.goToPosition(DepositArm.PivotArmStates.SPECIMEN_INTAKE_SIDEWAYS);
-                robot.closeClaw();
-                robot.ejectDown();
-            }
+//            if (controller2.dpad_right.onPress() && controller2.a.getValue()){
+//                robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.FULL_EXTEND);
+//                robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE_SIDEWAYS);
+//                robot.arm.goToPosition(IntakeArm.IntakeArmStates.HOVER);
+//                robot.deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE_SIDEWAYS);
+//                robot.closeClaw();
+//                robot.ejectDown();
+//            }
             if(controller2.dpad_left.onPress()){
                 robot.deposit.toggleClaw();
             }

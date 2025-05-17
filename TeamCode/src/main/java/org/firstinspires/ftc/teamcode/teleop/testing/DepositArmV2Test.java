@@ -5,13 +5,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystems.version2.DepositArm;
+import org.firstinspires.ftc.teamcode.subsystems.version2.DepositArmV2;
 import org.firstinspires.ftc.teamcode.subsystems.version2.IntakeArm;
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 
 @TeleOp(name="Deposit Arm V2 Test", group="Subsystem Tests")
 public class DepositArmV2Test extends LinearOpMode {
 
-    DepositArm arm;
+    DepositArmV2 arm;
     Servo left, right, wrist;
 
     @Override
@@ -48,7 +49,7 @@ public class DepositArmV2Test extends LinearOpMode {
 
 
         if (intakeArm){
-            arm = new DepositArm(hardwareMap);
+            arm = new DepositArmV2(hardwareMap);
             arm.setPositionArm(DepositArm.ARM_PARALLEL);
             arm.setPositionWrist(DepositArm.WRIST_PARALLEL);
             telemetry.addLine("Intake Arm Initialized");

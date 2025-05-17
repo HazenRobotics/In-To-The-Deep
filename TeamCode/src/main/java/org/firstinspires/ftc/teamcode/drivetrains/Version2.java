@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.version2.ActiveIntakeV2;
 import org.firstinspires.ftc.teamcode.subsystems.version2.DepositArm;
+import org.firstinspires.ftc.teamcode.subsystems.version2.DepositArmV2;
 import org.firstinspires.ftc.teamcode.subsystems.version2.DepositLift;
 import org.firstinspires.ftc.teamcode.subsystems.version2.ExtendoSlide;
 import org.firstinspires.ftc.teamcode.subsystems.version2.IntakeArm;
@@ -22,7 +23,7 @@ public class Version2 extends Mecanum{
     public ExtendoSlide extendo;
     public DepositLift lift;
     public Sweeper sweeper;
-    public DepositArm deposit;
+    public DepositArmV2 deposit;
 
     boolean delayEjector, delayArm, delaySpecDeposit;
 
@@ -34,7 +35,7 @@ public class Version2 extends Mecanum{
         arm = new IntakeArm(hw);
         extendo = new ExtendoSlide(hw);
         lift = new DepositLift(hw);
-        deposit = new DepositArm(hw);
+        deposit = new DepositArmV2(hw);
         sweeper = new Sweeper(hw);
         delayEjector = false;
         delayArm = false;
@@ -62,14 +63,14 @@ public class Version2 extends Mecanum{
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
         lift.goToPosition(DepositLift.LiftStates.TRANSFER);
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-        deposit.goToPosition(DepositArm.PivotArmStates.TRASNFER);
+        deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         deactivateIntake();
         intake.dropDown();
     }
 
     public void specimenIntake(){
         lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
-        deposit.goToPosition(DepositArm.PivotArmStates.SPECIMEN_INTAKE);
+        deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
         deposit.openClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
@@ -81,7 +82,7 @@ public class Version2 extends Mecanum{
     }
     public void sampleIntake(){
         lift.goToPosition(DepositLift.LiftStates.TRANSFER);
-        deposit.goToPosition(DepositArm.PivotArmStates.TRASNFER);
+        deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         deposit.openClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.INTAKE);
         extendo.goToPosition(ExtendoSlide.ExtendoStates.FULL_EXTEND);
@@ -90,7 +91,7 @@ public class Version2 extends Mecanum{
     public void specimenDeposit(){
         lift.goToPosition(DepositLift.LiftStates.SPECIMEN_DEPOSIT);
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-        deposit.goToPosition(DepositArm.PivotArmStates.SPECIMEN_DEPOSIT);
+        deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_DEPOSIT);
         deposit.closeClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
@@ -100,7 +101,7 @@ public class Version2 extends Mecanum{
     public void sampleDeposit(){
         lift.goToPosition(DepositLift.LiftStates.SAMPLE_DEPOSIT);
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-        deposit.goToPosition(DepositArm.PivotArmStates.SAMPLE_DEPOSIT);
+        deposit.goToPosition(DepositArmV2.PivotArmStates.SAMPLE_DEPOSIT);
         deposit.closeClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
@@ -180,7 +181,7 @@ public class Version2 extends Mecanum{
         intake.updateSensor();
         if (lift.getPosition() > 100 + DepositLift.LiftStates.TRANSFER.getPosition()){
             if(delayArm && Math.abs(extendo.getVelocity()) < 20 ){
-                deposit.goToPosition(DepositArm.PivotArmStates.SAMPLE_DEPOSIT);
+                deposit.goToPosition(DepositArmV2.PivotArmStates.SAMPLE_DEPOSIT);
                 delayArm = false;
             }
             if(delayEjector){
