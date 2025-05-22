@@ -24,7 +24,7 @@ public class DepositLift extends PIDController {
 
     public enum LiftStates {
         TRANSFER(0), //Default Position
-        SPECIMEN_INTAKE(185), //Specimen Intake Position
+        SPECIMEN_INTAKE(67), //Specimen Intake Position
         SPECIMEN_DEPOSIT(230), //Specimen Deposit Position
         SAMPLE_DEPOSIT(720),// Sample Deposit Position
         SPECIMEN_DEPOSIT_PRELOAD(415),

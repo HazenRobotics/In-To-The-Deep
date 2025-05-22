@@ -125,7 +125,7 @@ public class ExtendoSlide extends PIDController {
 //        if (extendo.getCurrent(CurrentUnit.AMPS) > 5 && Math.abs(getVelocity()) < 5){
 //            extendoOffset = getPosition();
 //        }
-        if (bumpSwitch.getState()){
+        if (!bumpSwitch.getState()){
             resetExtendoOffset();
         }
         return power;
@@ -155,7 +155,7 @@ public class ExtendoSlide extends PIDController {
     public int setPosition(double power){
         int targetPosition = (int) MiscMethods.clamp(super.getTarget() + (power * EXTENDO_SPEED), extendoOffset, MAX_EXTENSION);
 //        currentState.setPosition(targetPosition);
-        if (extendoOffset + targetPosition > 50){
+        if (extendoOffset + 50 < targetPosition){
             currentState = ExtendoStates.VARIABLE_EXTEND;
         }else{
            currentState = ExtendoStates.TRANSFER;
@@ -190,6 +190,9 @@ public class ExtendoSlide extends PIDController {
         ExtendoStates.FULL_EXTEND.setPosition(MAX_EXTENSION);
     }
 
+    public double getExtendoOffset(){
+        return extendoOffset;
+    }
 
     @NonNull
     @SuppressLint("DefaultLocale")

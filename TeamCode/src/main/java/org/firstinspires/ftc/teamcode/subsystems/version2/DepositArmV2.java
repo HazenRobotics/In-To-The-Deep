@@ -12,10 +12,12 @@ import org.firstinspires.ftc.teamcode.utils.MiscMethods;
 public class DepositArmV2 {
     public enum PivotArmStates{
         reset(0,0),
-        TRASNFER(ARM_PARALLEL - 0.2, WRIST_PARALLEL - 0.489),
-        SPECIMEN_INTAKE(ARM_PARALLEL + 0.657, WRIST_PARALLEL - 0.435),
-        SPECIMEN_DEPOSIT(ARM_PARALLEL + 0.121, WRIST_PARALLEL - 0.489),
-        SAMPLE_DEPOSIT(ARM_PARALLEL + 0.151, WRIST_PARALLEL - 0.016);
+        TRASNFER(ARM_PARALLEL - 0.189, WRIST_PARALLEL - 0.76),
+        SPECIMEN_INTAKE(ARM_PARALLEL + 0.133, WRIST_PARALLEL + 0.36),
+        SPECIMEN_DEPOSIT(ARM_PARALLEL - 0.329, WRIST_PARALLEL + 0.219),
+        SAMPLE_DEPOSIT(ARM_PARALLEL + 0.151, WRIST_PARALLEL - 0.016),
+
+        TEMP_TRANSFER(ARM_PARALLEL, WRIST_PARALLEL - 0.76);
         private double arm;
         private double wrist;
         PivotArmStates(double armPos, double wristPos) {
@@ -44,8 +46,8 @@ public class DepositArmV2 {
     }
     double ARM_SPEED = 0.003;
     double WRIST_SPEED = 0.003;
-    public final static double ARM_PARALLEL = 0.2; //Left Servo Parallel
-    public final static double WRIST_PARALLEL = 0.918; //Wrist Servo Parallel
+    public final static double ARM_PARALLEL = 0.5; //Left Servo Parallel
+    public final static double WRIST_PARALLEL = 0.5; //Wrist Servo Parallel
     double OPEN = 0.137;
     double CLOSE = 0.647;
     Servo armPivotLeft, armPivotRight;

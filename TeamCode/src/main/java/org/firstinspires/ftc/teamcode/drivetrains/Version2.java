@@ -25,7 +25,7 @@ public class Version2 extends Mecanum{
     public Sweeper sweeper;
     public DepositArmV2 deposit;
 
-    boolean delayEjector, delayArm, delaySpecDeposit;
+    boolean delayEjector, delayArm, delaySpecDeposit, delayTransfer;
 
     boolean autoPIDAcitve = true;
 
@@ -63,14 +63,15 @@ public class Version2 extends Mecanum{
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
         lift.goToPosition(DepositLift.LiftStates.TRANSFER);
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-        deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
+//        deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         deactivateIntake();
         intake.dropDown();
+        delayTransfer = true;
     }
 
     public void specimenIntake(){
         lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
-        deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
+//        deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
         deposit.openClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
@@ -101,7 +102,7 @@ public class Version2 extends Mecanum{
     public void sampleDeposit(){
         lift.goToPosition(DepositLift.LiftStates.SAMPLE_DEPOSIT);
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-        deposit.goToPosition(DepositArmV2.PivotArmStates.SAMPLE_DEPOSIT);
+//        deposit.goToPosition(DepositArmV2.PivotArmStates.SAMPLE_DEPOSIT);
         deposit.closeClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
@@ -186,12 +187,22 @@ public class Version2 extends Mecanum{
             }
             if(delayEjector){
                 ejectUp();
+                deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
                 delayEjector = false;
             }
         }
-        if(delaySpecDeposit && (lift.getPosition() + 5) > DepositLift.LiftStates.SPECIMEN_INTAKE.getPosition()){
-
+        if(delaySpecDeposit && (lift.getPosition() + 10) > DepositLift.LiftStates.SPECIMEN_INTAKE.getPosition()){
             delaySpecDeposit = false;
+        }
+
+        //This implies a variable extend state
+        if (extendo.getPosition() > 50 + extendo.getExtendoOffset()){
+            deposit.goToPosition(DepositArmV2.PivotArmStates.TEMP_TRANSFER);
+            openClaw();
+        }
+        //This implies a transfer state
+        else{
+            deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         }
     }
     //----------------------------------------------------------------------------------------------

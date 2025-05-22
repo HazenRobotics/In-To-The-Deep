@@ -50,8 +50,8 @@ public class DepositArmV2Test extends LinearOpMode {
 
         if (intakeArm){
             arm = new DepositArmV2(hardwareMap);
-            arm.setPositionArm(DepositArm.ARM_PARALLEL);
-            arm.setPositionWrist(DepositArm.WRIST_PARALLEL);
+            arm.setPositionArm(DepositArmV2.ARM_PARALLEL);
+            arm.setPositionWrist(DepositArmV2.WRIST_PARALLEL);
             telemetry.addLine("Intake Arm Initialized");
         }else{
             if (leftPiv){
