@@ -17,7 +17,8 @@ public class DepositArmV2 {
         SPECIMEN_DEPOSIT(ARM_PARALLEL - 0.329, WRIST_PARALLEL + 0.219),
         SAMPLE_DEPOSIT(ARM_PARALLEL + 0.151, WRIST_PARALLEL - 0.016),
 
-        TEMP_TRANSFER(ARM_PARALLEL, WRIST_PARALLEL - 0.76);
+        TEMP_TRANSFER(ARM_PARALLEL, WRIST_PARALLEL - 0.76),
+        PARK_ARM(ARM_PARALLEL + 0.128, WRIST_PARALLEL);
         private double arm;
         private double wrist;
         PivotArmStates(double armPos, double wristPos) {
