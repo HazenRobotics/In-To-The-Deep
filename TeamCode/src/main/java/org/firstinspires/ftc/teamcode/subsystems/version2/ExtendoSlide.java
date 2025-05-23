@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -45,7 +46,7 @@ public class ExtendoSlide extends PIDController {
     DcMotorEx extendo;
     Encoder encoder;
 
-
+    DigitalChannel bumpSwitch;
 
     HashMap<ExtendoStates, Integer> extendoPositions;
 
@@ -67,6 +68,11 @@ public class ExtendoSlide extends PIDController {
 
         extendoOffset = 0;
         currentState = ExtendoStates.TRANSFER;
+
+
+
+        //Addition of new reset feature
+        bumpSwitch = hw.digitalChannel.get("bumpSwitch");
     }
 
     public ExtendoSlide(HardwareMap hw){
@@ -119,6 +125,9 @@ public class ExtendoSlide extends PIDController {
 //        if (extendo.getCurrent(CurrentUnit.AMPS) > 5 && Math.abs(getVelocity()) < 5){
 //            extendoOffset = getPosition();
 //        }
+        if (!bumpSwitch.getState()){
+            resetExtendoOffset();
+        }
         return power;
     }
     //-----------------------------------------------------------------------------------------
@@ -146,7 +155,7 @@ public class ExtendoSlide extends PIDController {
     public int setPosition(double power){
         int targetPosition = (int) MiscMethods.clamp(super.getTarget() + (power * EXTENDO_SPEED), extendoOffset, MAX_EXTENSION);
 //        currentState.setPosition(targetPosition);
-        if (extendoOffset + targetPosition > 50){
+        if (extendoOffset + 50 < targetPosition){
             currentState = ExtendoStates.VARIABLE_EXTEND;
         }else{
            currentState = ExtendoStates.TRANSFER;
@@ -181,6 +190,9 @@ public class ExtendoSlide extends PIDController {
         ExtendoStates.FULL_EXTEND.setPosition(MAX_EXTENSION);
     }
 
+    public double getExtendoOffset(){
+        return extendoOffset;
+    }
 
     @NonNull
     @SuppressLint("DefaultLocale")

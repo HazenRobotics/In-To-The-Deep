@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-//@TeleOp(name = "RingLauncher")
+@TeleOp(name = "RingLauncher")
 public class RingLauncher extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -26,7 +26,7 @@ public class RingLauncher extends LinearOpMode {
         waitForStart();
 
         while (!isStopRequested()){
-            double forward = gamepad1.left_stick_y;
+            double forward = -gamepad1.left_stick_y;
             double rotate = gamepad1.right_stick_x;
 
             frontLeft.setPower(forward + rotate);
