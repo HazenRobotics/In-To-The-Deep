@@ -187,7 +187,7 @@ public class Version2 extends Mecanum{
             }
             if(delayEjector){
                 ejectUp();
-                deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
+                deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
                 delayEjector = false;
             }
         }
@@ -196,12 +196,12 @@ public class Version2 extends Mecanum{
         }
 
         //This implies a variable extend state
-        if (extendo.getPosition() > 50 + extendo.getExtendoOffset()){
+        if (lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() > 50 + extendo.getExtendoOffset()){
             deposit.goToPosition(DepositArmV2.PivotArmStates.TEMP_TRANSFER);
             openClaw();
         }
         //This implies a transfer state
-        else{
+        else if(lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() < 50 + extendo.getExtendoOffset()){
             deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         }
     }
