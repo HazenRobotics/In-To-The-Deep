@@ -23,7 +23,7 @@ public class IntakeArm {
 
         TRANSFER(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738),
         HOVER(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093),//0.846,0.805
-        INTAKE(ARM_PARALLEL + 0.11,WRIST_PARALLEL),
+        INTAKE(ARM_PARALLEL + 0.16,WRIST_PARALLEL),
         PUSH(ARM_PARALLEL+0.179, WRIST_PARALLEL+0.195),
         SAMPLE_INTAKE_AUTO(ARM_PARALLEL + 0.17, WRIST_PARALLEL + 0.15);//0.841,0.629
 
@@ -51,9 +51,9 @@ public class IntakeArm {
         }
 
         public void resetPositions(){
-            TRANSFER.setArmWrist(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738);
-            HOVER.setArmWrist(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093);
-            INTAKE.setArmWrist(ARM_PARALLEL + 0.11,WRIST_PARALLEL); //0.917, 0.803
+//            TRANSFER.setArmWrist(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738);
+//            HOVER.setArmWrist(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093);
+//            INTAKE.setArmWrist(ARM_PARALLEL + 0.11,WRIST_PARALLEL); //0.917, 0.803
         }
     }
 

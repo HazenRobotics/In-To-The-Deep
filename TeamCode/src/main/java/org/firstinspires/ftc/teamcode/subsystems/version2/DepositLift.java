@@ -24,8 +24,8 @@ public class DepositLift extends PIDController {
 
     public enum LiftStates {
         TRANSFER(0), //Default Position
-        SPECIMEN_INTAKE(67), //Specimen Intake Position
-        SPECIMEN_DEPOSIT(230), //Specimen Deposit Position
+        SPECIMEN_INTAKE(54), //Specimen Intake Position
+        SPECIMEN_DEPOSIT(205), //Specimen Deposit Position
         SAMPLE_DEPOSIT(720),// Sample Deposit Position
         SPECIMEN_DEPOSIT_PRELOAD(415),
         SPECIMEN_INTAKE_AUTO(200),
@@ -164,10 +164,10 @@ public class DepositLift extends PIDController {
 
     public void resetLiftOffset(){
         liftOffset = encoder.getPositionAndVelocity().position;
-        LiftStates.TRANSFER.setPosition(0);
-        LiftStates.SPECIMEN_INTAKE.setPosition(190);
-        LiftStates.SPECIMEN_DEPOSIT.setPosition(210);
-        LiftStates.SAMPLE_DEPOSIT.setPosition(720);
+//        LiftStates.TRANSFER.setPosition(0);
+//        LiftStates.SPECIMEN_INTAKE.setPosition(190);
+//        LiftStates.SPECIMEN_DEPOSIT.setPosition(210);
+//        LiftStates.SAMPLE_DEPOSIT.setPosition(720);
 
 
     }

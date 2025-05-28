@@ -75,11 +75,12 @@ public class Version2 extends Mecanum{
         deposit.openClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
-        if (intake.isEjectorDown()){
-            delayEjector = true;
-        }else{
-            intake.dropDown();
-        }
+//        if (intake.isEjectorDown()){
+//            delayEjector = true;
+//        }else{
+//            intake.dropDown();
+//        }
+        delayEjector = true;
     }
     public void sampleIntake(){
         lift.goToPosition(DepositLift.LiftStates.TRANSFER);
@@ -186,7 +187,8 @@ public class Version2 extends Mecanum{
                 delayArm = false;
             }
             if(delayEjector){
-                ejectUp();
+                ejectToggle();
+//                ejectUp();
                 deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
                 delayEjector = false;
             }
