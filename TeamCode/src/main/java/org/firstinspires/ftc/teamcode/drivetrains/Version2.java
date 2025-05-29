@@ -206,12 +206,12 @@ public class Version2 extends Mecanum{
         }
 
         //This implies a variable extend state
-        if (lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() > 10 + extendo.getExtendoOffset()){
+        if (lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() > 30 + extendo.getExtendoOffset()){
             deposit.goToPosition(DepositArmV2.PivotArmStates.TEMP_TRANSFER);
             openClaw();
         }
         //This implies a transfer state
-        else if(lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() < 50 + extendo.getExtendoOffset()){
+        else if(lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() < 30 + extendo.getExtendoOffset()){
             deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         }
     }

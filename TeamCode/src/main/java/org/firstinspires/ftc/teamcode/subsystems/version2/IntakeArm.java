@@ -19,6 +19,10 @@ public class IntakeArm {
     static double ARM_PARALLEL = 0.783; //Left Servo Parallel
     static double WRIST_PARALLEL = 0.691; //Wrist Servo Parallel
     public enum IntakeArmStates{
+
+
+        //---------------------------------DO NOT TOUCH---------------------------------------------
+        //------------------------------THESE CHANGE NOTHING----------------------------------------
         reset(0,0),
 
         TRANSFER(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738),
@@ -26,6 +30,14 @@ public class IntakeArm {
         INTAKE(ARM_PARALLEL + 0.16,WRIST_PARALLEL),
         PUSH(ARM_PARALLEL+0.179, WRIST_PARALLEL+0.195),
         SAMPLE_INTAKE_AUTO(ARM_PARALLEL + 0.17, WRIST_PARALLEL + 0.15);//0.841,0.629
+
+
+        //CHANGE THESE VARIABLES
+        public void resetPositions(){
+            TRANSFER.setArmWrist(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738);
+            HOVER.setArmWrist(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093);
+            INTAKE.setArmWrist(ARM_PARALLEL + 0.16,WRIST_PARALLEL); //0.917, 0.803
+        }
 
         private double arm;
         private double wrist;
@@ -50,11 +62,7 @@ public class IntakeArm {
             setWrist(wristPos);
         }
 
-        public void resetPositions(){
-//            TRANSFER.setArmWrist(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738);
-//            HOVER.setArmWrist(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093);
-//            INTAKE.setArmWrist(ARM_PARALLEL + 0.11,WRIST_PARALLEL); //0.917, 0.803
-        }
+
     }
 
 
