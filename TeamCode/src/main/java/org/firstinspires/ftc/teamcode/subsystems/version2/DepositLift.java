@@ -21,15 +21,27 @@ public class DepositLift extends PIDController {
 
     private static final int LIFT_SPEED = 25;
 
+    //CHANGE THESE VARIABLES
+    public void resetLiftOffset(){
+        liftOffset = encoder.getPositionAndVelocity().position;
+        LiftStates.TRANSFER.setPosition(0);
+        LiftStates.SPECIMEN_INTAKE.setPosition(54);
+        LiftStates.SPECIMEN_DEPOSIT.setPosition(205);
+        LiftStates.SAMPLE_DEPOSIT.setPosition(720);
+        LiftStates.SPECIMEN_INTAKE_RAISE.setPosition(LiftStates.SPECIMEN_INTAKE.getPosition() + 150);
+    }
 
+    //---------------------------------DO NOT TOUCH-------------------------------------------------
+    //------------------------------THESE CHANGE NOTHING--------------------------------------------
     public enum LiftStates {
+
         TRANSFER(0), //Default Position
         SPECIMEN_INTAKE(54), //Specimen Intake Position
         SPECIMEN_DEPOSIT(205), //Specimen Deposit Position
         SAMPLE_DEPOSIT(720),// Sample Deposit Position
         SPECIMEN_DEPOSIT_PRELOAD(415),
         SPECIMEN_INTAKE_AUTO(200),
-        SPECIMEN_INTAKE_RAISE(SPECIMEN_INTAKE.getPosition() + 40),
+        SPECIMEN_INTAKE_RAISE(SPECIMEN_INTAKE.getPosition() + 80),
 
         SPECIMEN_INTAKE_SIDEWAYS(210),
         SPECIMEN_DEPOSIT_SIDEWAYS(250);
@@ -162,15 +174,7 @@ public class DepositLift extends PIDController {
     }
 
 
-    public void resetLiftOffset(){
-        liftOffset = encoder.getPositionAndVelocity().position;
-//        LiftStates.TRANSFER.setPosition(0);
-//        LiftStates.SPECIMEN_INTAKE.setPosition(190);
-//        LiftStates.SPECIMEN_DEPOSIT.setPosition(210);
-//        LiftStates.SAMPLE_DEPOSIT.setPosition(720);
 
-
-    }
 
     @NonNull
     @SuppressLint("DefaultLocale")

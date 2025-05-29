@@ -25,7 +25,7 @@ public class Version2 extends Mecanum{
     public Sweeper sweeper;
     public DepositArmV2 deposit;
 
-    boolean delayEjector, delayArm, delaySpecDeposit, delayTransfer;
+    boolean delayEjector, delayArm, delaySpecDeposit, delayTransfer, ejectComplete;
 
     boolean autoPIDAcitve = true;
 
@@ -70,7 +70,7 @@ public class Version2 extends Mecanum{
     }
 
     public void specimenIntake(){
-        lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
+        lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE_RAISE);
 //        deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
         deposit.openClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
@@ -186,19 +186,27 @@ public class Version2 extends Mecanum{
                 deposit.goToPosition(DepositArmV2.PivotArmStates.SAMPLE_DEPOSIT);
                 delayArm = false;
             }
+
+        }
+        if (lift.getPosition() > DepositLift.LiftStates.SPECIMEN_INTAKE_RAISE.getPosition() - 40){
             if(delayEjector){
                 ejectToggle();
 //                ejectUp();
-                deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
+
                 delayEjector = false;
             }
+            if (ejectComplete && lift.getPosition() > DepositLift.LiftStates.SPECIMEN_INTAKE_RAISE.getPosition() - 20){
+                deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
+                lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
+            }
         }
+
         if(delaySpecDeposit && (lift.getPosition() + 10) > DepositLift.LiftStates.SPECIMEN_INTAKE.getPosition()){
             delaySpecDeposit = false;
         }
 
         //This implies a variable extend state
-        if (lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() > 50 + extendo.getExtendoOffset()){
+        if (lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() > 10 + extendo.getExtendoOffset()){
             deposit.goToPosition(DepositArmV2.PivotArmStates.TEMP_TRANSFER);
             openClaw();
         }

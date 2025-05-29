@@ -153,7 +153,7 @@ public class ExtendoSlide extends PIDController {
      * @return [int] Returns the new target position of the lift in ticks.
      */
     public int setPosition(double power){
-        int targetPosition = (int) MiscMethods.clamp(super.getTarget() + (power * EXTENDO_SPEED), extendoOffset, MAX_EXTENSION);
+        int targetPosition = (int) Math.min(super.getTarget() + (power * EXTENDO_SPEED), MAX_EXTENSION);
 //        currentState.setPosition(targetPosition);
         if (extendoOffset + 50 < targetPosition){
             currentState = ExtendoStates.VARIABLE_EXTEND;
