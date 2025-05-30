@@ -26,7 +26,7 @@ public class DepositLift extends PIDController {
         TRANSFER(0), //Default Position
         SPECIMEN_INTAKE(67), //Specimen Intake Position
         SPECIMEN_DEPOSIT(230), //Specimen Deposit Position
-        SAMPLE_DEPOSIT(720),// Sample Deposit Position
+        SAMPLE_DEPOSIT(760),// Sample Deposit Position
         SPECIMEN_DEPOSIT_PRELOAD(415),
         SPECIMEN_INTAKE_AUTO(200),
         SPECIMEN_INTAKE_RAISE(SPECIMEN_INTAKE.getPosition() + 40),
@@ -167,7 +167,7 @@ public class DepositLift extends PIDController {
         LiftStates.TRANSFER.setPosition(0);
         LiftStates.SPECIMEN_INTAKE.setPosition(190);
         LiftStates.SPECIMEN_DEPOSIT.setPosition(210);
-        LiftStates.SAMPLE_DEPOSIT.setPosition(720);
+        LiftStates.SAMPLE_DEPOSIT.setPosition(760);
 
 
     }

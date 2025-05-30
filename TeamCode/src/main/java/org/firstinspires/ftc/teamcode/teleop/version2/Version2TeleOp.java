@@ -21,6 +21,7 @@ public class Version2TeleOp extends LinearOpMode {
         GamepadEvents controller1 = new GamepadEvents(gamepad1);
         GamepadEvents controller2 = new GamepadEvents(gamepad2);
 
+
         controller2.left_trigger.setPressTolerance(0.5);
         controller2.right_trigger.setPressTolerance(0.5);
         waitForStart();

@@ -339,6 +339,7 @@ public class Version2 extends Mecanum{
     public void deactivateIntake(){
         intake.setPower(0);
     }
+
     public void reverseIntake(){
         intake.setPower(-1);
     }

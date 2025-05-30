@@ -14,6 +14,7 @@ public class ColorSensor {
 
     DigitalChannel pin0, pin1;
 
+
     public ColorSensor(HardwareMap hw){
         this(hw, "color0", "color1");
     }
@@ -37,6 +38,7 @@ public class ColorSensor {
         }
         else if(col0){
             return Color.Blue;
+
         } else if (col1) {
             return Color.Red;
         }

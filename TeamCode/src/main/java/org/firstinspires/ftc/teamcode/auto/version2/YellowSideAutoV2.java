@@ -38,9 +38,9 @@ public class YellowSideAutoV2 extends LinearOpMode {
 
     //Locations
     public static final Pose2d startPosition = new Pose2d(-39,-65,Math.toRadians(90));
-    public static final Pose2d sample1postion = new Pose2d(-59, -58, Math.toRadians(90));
-    public static final Pose2d sample2postion = new Pose2d(-57.5, -48, Math.toRadians(75));
-    public static final Pose2d sample3postion = new Pose2d(-48, -48, Math.toRadians(45));
+    public static final Pose2d sample1postion = new Pose2d(-65, -58, Math.toRadians(90));
+    public static final Pose2d sample2postion = new Pose2d(-63.5, -48, Math.toRadians(75));
+    public static final Pose2d sample3postion = new Pose2d(-54, -48, Math.toRadians(45));
     public static final Pose2d bucketPosition = new Pose2d(-57, -61, Math.toRadians(45));
 
     Pose2d innerIntake = MiscMethods.lerp(bucketPosition,new Pose2d(-49,25,0),0.1);
