@@ -29,6 +29,8 @@ public class Version2 extends Mecanum{
 
     boolean autoPIDAcitve = true;
 
+    long timer = 0;
+    long delay = 0;
     public Version2(HardwareMap hw){
         super(hw);
         intake = new ActiveIntakeV2(hw);
@@ -70,16 +72,17 @@ public class Version2 extends Mecanum{
     }
 
     public void specimenIntake(){
-        lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
+        lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE_MIDPOINT);
 //        deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
         deposit.openClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
-        if (intake.isEjectorDown()){
-            delayEjector = true;
-        }else{
-            intake.dropDown();
-        }
+//        if (intake.isEjectorDown()){
+//            delayEjector = true;
+//        }else{
+//            intake.dropDown();
+//        }
+        delayEjector = true;
     }
     public void sampleIntake(){
         lift.goToPosition(DepositLift.LiftStates.TRANSFER);
@@ -177,6 +180,7 @@ public class Version2 extends Mecanum{
 
 
     public void updatePID(){
+        timer = System.currentTimeMillis();
         extendo.updatePID();
         lift.updatePID();
         intake.updateSensor();
@@ -185,13 +189,17 @@ public class Version2 extends Mecanum{
                 deposit.goToPosition(DepositArmV2.PivotArmStates.SAMPLE_DEPOSIT);
                 delayArm = false;
             }
-            if(delayEjector){
-                ejectUp();
-                deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
+            if (delayEjector) {
+                ejectToggle();
+                delay = timer;
                 delayEjector = false;
+                delaySpecDeposit = true;
             }
         }
-        if(delaySpecDeposit && (lift.getPosition() + 10) > DepositLift.LiftStates.SPECIMEN_INTAKE.getPosition()){
+        if(delaySpecDeposit && timer - delay > 750){
+
+            lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
+            deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
             delaySpecDeposit = false;
         }
 

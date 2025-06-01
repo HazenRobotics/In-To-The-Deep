@@ -61,10 +61,10 @@ public class ExtendoSlide extends PIDController {
         super(0.03,0,0,0);
         extendo = hw.get(DcMotorEx.class, nameMotor);
         //Initially negative, but I want to work with positives only
-        extendo.setDirection(DcMotorSimple.Direction.REVERSE);
+//        extendo.setDirection(DcMotorSimple.Direction.REVERSE);
 
         encoder = new OverflowEncoder(new RawEncoder(hw.get(DcMotorEx.class, nameEncoder)));
-        encoder.setDirection(DcMotorSimple.Direction.REVERSE);
+//        encoder.setDirection(DcMotorSimple.Direction.REVERSE);
 
         extendoOffset = 0;
         currentState = ExtendoStates.TRANSFER;

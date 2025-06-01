@@ -60,8 +60,8 @@ public class DepositArm {
 
         public void resetPositions(){
             TRASNFER.setArmWrist(ARM_PARALLEL - 0.2, WRIST_PARALLEL - 0.521);//0.272, 0.131
-            SPECIMEN_INTAKE.setArmWrist(ARM_PARALLEL + 0.252, WRIST_PARALLEL + 0.315);//0.798,0.928
-            SPECIMEN_DEPOSIT.setArmWrist(ARM_PARALLEL - 0.119, WRIST_PARALLEL - 0.173);//0.351, 0.511
+            SPECIMEN_INTAKE.setArmWrist(ARM_PARALLEL + 0.259, WRIST_PARALLEL + 0.345);//0.798,0.928
+            SPECIMEN_DEPOSIT.setArmWrist(ARM_PARALLEL - 0.381, WRIST_PARALLEL - 0.219);//0.351, 0.511
             SAMPLE_DEPOSIT.setArmWrist(ARM_PARALLEL + 0.004, WRIST_PARALLEL + 0.182);
         }
     }
