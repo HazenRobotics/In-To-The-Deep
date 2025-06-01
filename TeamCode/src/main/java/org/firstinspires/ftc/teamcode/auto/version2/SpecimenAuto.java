@@ -128,6 +128,7 @@ public class SpecimenAuto extends LinearOpMode {
                         .stopAndAdd(robot.waitForExtendo(extendoWaitTime))
                         .waitSeconds(0.2)
 
+
                         .stopAndAdd(print.addInstantMessage("Eject Sample"))
 
                         .stopAndAdd(robot::ejectUp) //Deposit inner sample
