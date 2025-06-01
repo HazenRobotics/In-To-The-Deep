@@ -228,6 +228,7 @@ public class Version2 extends Mecanum{
             delaySpecDeposit = false;
         }
 
+
         if(deposit.getCurrentState() == DepositArmV2.PivotArmStates.SPECIMEN_INTAKE)
         {
             lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
