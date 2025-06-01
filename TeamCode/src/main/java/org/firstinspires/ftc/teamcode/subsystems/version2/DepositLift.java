@@ -24,12 +24,14 @@ public class DepositLift extends PIDController {
 
     public enum LiftStates {
         TRANSFER(0), //Default Position
+        RESET(0),
         SPECIMEN_INTAKE(54), //Specimen Intake Position
-        SPECIMEN_DEPOSIT(205), //Specimen Deposit Position
-        SAMPLE_DEPOSIT(720),// Sample Deposit Position
+        SPECIMEN_HALF_INTAKE(150),
+        SPECIMEN_DEPOSIT(195), //Specimen Deposit Position
+        SAMPLE_DEPOSIT(820),// Sample Deposit Position
         SPECIMEN_DEPOSIT_PRELOAD(415),
         SPECIMEN_INTAKE_AUTO(200),
-        SPECIMEN_INTAKE_RAISE(SPECIMEN_INTAKE.getPosition() + 40),
+        SPECIMEN_INTAKE_RAISE(SPECIMEN_INTAKE.getPosition() + 70),
 
         SPECIMEN_INTAKE_SIDEWAYS(210),
         SPECIMEN_DEPOSIT_SIDEWAYS(250);

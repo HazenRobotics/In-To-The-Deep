@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.drivetrains;
 
+import static org.firstinspires.ftc.teamcode.subsystems.version2.DepositLift.LiftStates.RESET;
+import static org.firstinspires.ftc.teamcode.subsystems.version2.DepositLift.LiftStates.TRANSFER;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -46,6 +49,16 @@ public class Version2 extends Mecanum{
         deposit.init();
         sweeper.init();
     }
+
+    public void reset()
+    {
+        deposit.init();
+//        extendo.resetExtendoOffset();
+        extendo.setPosition(0);
+//        lift.resetLiftOffset();
+        lift.goToPosition(RESET);
+        sweeper.init();
+    }
     public void completeInit(){
         init();
         extendo.resetExtendoOffset();
@@ -61,7 +74,7 @@ public class Version2 extends Mecanum{
     public void transferPosition(){
         deposit.openClaw();
         extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
-        lift.goToPosition(DepositLift.LiftStates.TRANSFER);
+        lift.goToPosition(TRANSFER);
         arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
 //        deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         deactivateIntake();
@@ -69,12 +82,30 @@ public class Version2 extends Mecanum{
         delayTransfer = true;
     }
 
-    public void specimenIntake(){
+    public void specimenIntake() throws InterruptedException {
         lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
 //        deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
         deposit.openClaw();
-        arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-        extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
+
+        lift.goToPosition(DepositLift.LiftStates.SPECIMEN_HALF_INTAKE);
+
+        if(lift.getCurrentState() == DepositLift.LiftStates.SPECIMEN_INTAKE)
+        {
+
+            arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
+            extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
+
+
+
+
+
+        }
+
+
+
+
+
+
 //        if (intake.isEjectorDown()){
 //            delayEjector = true;
 //        }else{
@@ -83,7 +114,7 @@ public class Version2 extends Mecanum{
         delayEjector = true;
     }
     public void sampleIntake(){
-        lift.goToPosition(DepositLift.LiftStates.TRANSFER);
+        lift.goToPosition(TRANSFER);
         deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         deposit.openClaw();
         arm.goToPosition(IntakeArm.IntakeArmStates.INTAKE);
@@ -119,7 +150,7 @@ public class Version2 extends Mecanum{
         if (Math.abs(power) < 0.01){
             return;
         }
-        if(lift.getCurrentState() == DepositLift.LiftStates.TRANSFER){
+        if(lift.getCurrentState() == TRANSFER){
             extendo.setPosition(power);
         }else{
             lift.setPosition(power);
@@ -181,7 +212,7 @@ public class Version2 extends Mecanum{
         extendo.updatePID();
         lift.updatePID();
         intake.updateSensor();
-        if (lift.getPosition() > 100 + DepositLift.LiftStates.TRANSFER.getPosition()){
+        if (lift.getPosition() > 100 + TRANSFER.getPosition()){
             if(delayArm && Math.abs(extendo.getVelocity()) < 20 ){
                 deposit.goToPosition(DepositArmV2.PivotArmStates.SAMPLE_DEPOSIT);
                 delayArm = false;
@@ -197,13 +228,18 @@ public class Version2 extends Mecanum{
             delaySpecDeposit = false;
         }
 
+        if(deposit.getCurrentState() == DepositArmV2.PivotArmStates.SPECIMEN_INTAKE)
+        {
+            lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
+        }
+
         //This implies a variable extend state
-        if (lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() > 50 + extendo.getExtendoOffset()){
+        if (lift.getCurrentState() == TRANSFER && extendo.getPosition() > 50 + extendo.getExtendoOffset()){
             deposit.goToPosition(DepositArmV2.PivotArmStates.TEMP_TRANSFER);
             openClaw();
         }
         //This implies a transfer state
-        else if(lift.getCurrentState() == DepositLift.LiftStates.TRANSFER && extendo.getPosition() < 50 + extendo.getExtendoOffset()){
+        else if(lift.getCurrentState() == TRANSFER && extendo.getPosition() < 50 + extendo.getExtendoOffset()){
             deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
         }
     }
@@ -385,7 +421,7 @@ public class Version2 extends Mecanum{
         if (Math.abs(power) < 0.01){
             return;
         }
-        if(lift.getCurrentState() == DepositLift.LiftStates.TRANSFER){
+        if(lift.getCurrentState() == TRANSFER){
             lift.setPositionInverse(power);
         }
         //One of these should always be true, but this is just an extra safe guard

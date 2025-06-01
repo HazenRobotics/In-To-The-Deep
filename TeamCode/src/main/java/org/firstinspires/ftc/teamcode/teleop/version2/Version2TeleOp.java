@@ -55,6 +55,11 @@ public class Version2TeleOp extends LinearOpMode {
             if (controller1.dpad_down.onPress()){
                 robot.ejectDown();
             }
+
+            if(controller1.dpad_left.onPress())
+            {
+                robot.reset();
+            }
             robot.triggerControls(controller1.right_trigger.getTriggerValue() - controller1.left_trigger.getTriggerValue());
 
             //Driver 2 Manual Controls

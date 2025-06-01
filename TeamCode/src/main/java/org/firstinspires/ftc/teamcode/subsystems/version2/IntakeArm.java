@@ -97,6 +97,11 @@ public class IntakeArm {
         setPositionWrist(state.getWrist());
     }
 
+    public String getPositionState()
+    {
+        return currentState.toString();
+    }
+
 
     /**
      * Sets the exact position for the subsystem

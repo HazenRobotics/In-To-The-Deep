@@ -38,9 +38,9 @@ public class YellowSideAutoV2 extends LinearOpMode {
 
     //Locations
     public static final Pose2d startPosition = new Pose2d(-39,-65,Math.toRadians(90));
-    public static final Pose2d sample1postion = new Pose2d(-59, -58, Math.toRadians(90));
-    public static final Pose2d sample2postion = new Pose2d(-57.5, -48, Math.toRadians(75));
-    public static final Pose2d sample3postion = new Pose2d(-48, -48, Math.toRadians(45));
+    public static final Pose2d sample1postion = new Pose2d(-65, -58, Math.toRadians(90));
+    public static final Pose2d sample2postion = new Pose2d(-63.5, -48, Math.toRadians(75));
+    public static final Pose2d sample3postion = new Pose2d(-54, -48, Math.toRadians(45));
     public static final Pose2d bucketPosition = new Pose2d(-57, -61, Math.toRadians(45));
 
     Pose2d innerIntake = MiscMethods.lerp(bucketPosition,new Pose2d(-49,25,0),0.1);
@@ -146,7 +146,7 @@ public class YellowSideAutoV2 extends LinearOpMode {
                         .stopAndAdd(robot::sampleDeposit)
                         .afterTime(0.5,new InstantAction(()-> {
                             robot.arm.goToPosition(IntakeArm.IntakeArmStates.INTAKE);
-                        robot.reverseIntake();
+                            robot.reverseIntake();
                         }))
                         .waitSeconds(1)
                         .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(2,-2)), bucketPosition.heading)
@@ -307,7 +307,7 @@ public class YellowSideAutoV2 extends LinearOpMode {
 //                                .build(),
 //                new InstantAction(() -> this.addTelemetryMessage("Current Position: "+poseToString(roadRunnerDrive.pose)))
 
-                        //Evaluate position for a moment (TESTING PURPOSES)
+        //Evaluate position for a moment (TESTING PURPOSES)
                         /*
                         new SleepAction(5),
                         new InstantAction(() -> this.addTelemetryMessage("Driving to Bucket...")),

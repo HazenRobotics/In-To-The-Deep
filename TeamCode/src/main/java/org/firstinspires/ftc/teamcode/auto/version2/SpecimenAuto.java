@@ -27,10 +27,8 @@ import org.firstinspires.ftc.teamcode.utils.TelemetryRecorder;
 public class SpecimenAuto extends LinearOpMode {
 
     Pose2d startPosition = new Pose2d(9,-65,Math.toRadians(90));
-    double changeX = -1;
-    double changeY = -1;
-    double inner = 47.5 + changeX, middle = 59 + changeX, outer = 73 + changeX;
-    double sampleY = -50 + changeY;
+    double inner = 47.5, middle = 59, outer = 73;
+    double sampleY = -50;
 
     long extendoWaitTime = 1;
     double ejectorStowDelay = 0.2;
@@ -66,7 +64,6 @@ public class SpecimenAuto extends LinearOpMode {
 
         print = new TelemetryRecorder(telemetry);
 
-
         robot.specAutoInit();
         robot.closeClaw();
 
@@ -74,7 +71,7 @@ public class SpecimenAuto extends LinearOpMode {
         print.resetTimer();
 
         Actions.runBlocking(new ParallelAction(
-            robot.autoPID(),
+                robot.autoPID(),
                 roadRunner.actionBuilder(startPosition)
                         .stopAndAdd(robot::specimenDeposit)
 //                        .stopAndAdd(new InstantAction(() ->robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_DEPOSIT_PRELOAD)))
@@ -85,6 +82,10 @@ public class SpecimenAuto extends LinearOpMode {
 
 
 
+
+
+                        //Sample #1
+
                         //Intake Inner Sample
 //                        .afterDisp(5,new InstantAction(()-> robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.HALF_EXTEND)))
                         .stopAndAdd(print.addInstantMessage("Begin Inner Sample Intake"))
@@ -92,44 +93,64 @@ public class SpecimenAuto extends LinearOpMode {
                         .afterDisp(3, new InstantAction(() -> {
                             robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
                             robot.deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE);
-
                             robot.deposit.openClaw();
-                            //drive forward 0.17
-//                          robot.arm.goToPosition(IntakeArm.IntakeArmStates.SAMPLE_INTAKE_AUTO);
-                           robot.drive(0.17, 0, 0);
-                        }))
-                        
-
+                            robot.arm.goToPosition(IntakeArm.IntakeArmStates.SAMPLE_INTAKE_AUTO);}))
 //                        .afterDisp(3, robot::ejectDown)
 //                        .afterDisp(3.1, new InstantAction(()->robot.deposit.goToPosition(DepositArm.PivotArmStates.SPECIMEN_INTAKE_AUTO)))
 //                        .afterTime(3.1, new InstantAction(() -> robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE_AUTO)))
 //                        .afterDisp(3.2,new InstantAction(() -> robot.arm.goToPosition(IntakeArm.IntakeArmStates.SAMPLE_INTAKE_AUTO)))
-
                         .setReversed(true)
                         .splineToConstantHeading(new Vector2d(inner,sampleY),Math.toRadians(90))
                         .stopAndAdd(robot::activateIntake)
                         .stopAndAdd(new InstantAction(()->{
                             print.addMessage("Extending Extendo");
-                            //Comment out line below and move forward
-                            robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.FULL_EXTEND);
+                            //Change: Full Extend to Half Extend
+//                            robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.HALF_EXTEND);
                         }))
                         .stopAndAdd(robot.waitForExtendo(extendoWaitTime, true))
+
+                        .stopAndAdd(new InstantAction(() ->{
+                            //Change: Drive forward
+                            robot.drive(-30, 0, 0);
+                        }))
+
                         .stopAndAdd(new InstantAction(()-> {
                             print.addMessage("Retract Intake");
                             robot.arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-                            //Comment out line below and move forward
                             robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
+                            //change: Moved Lift up, for the ejection for the sample
+                            robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_HALF_INTAKE);
+                            //Change: Drive back
+                            robot.drive(-48, 0, 0);
                         }))
                         .turnTo(Math.toRadians(ejectAngle))
                         .afterTime(extendoWaitTime/2.0,robot::deactivateIntake)
                         .stopAndAdd(robot.waitForExtendo(extendoWaitTime))
                         .waitSeconds(0.2)
+
                         .stopAndAdd(print.addInstantMessage("Eject Sample"))
+
                         .stopAndAdd(robot::ejectUp) //Deposit inner sample
                         .waitSeconds(ejectorStowDelay)
                         .stopAndAdd(robot::ejectDown)
+                        //Change: Moving the arm to be in speicmen posiiton
+                        .stopAndAdd(new InstantAction(()-> {
 
+                            try {
+                                robot.specimenIntake();
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }))
 //                        .waitSeconds(3)
+
+
+
+
+
+                        //Sample #2
+
+
                         //Intake Middle Sample
                         .stopAndAdd(print.addInstantMessage("Begin Middle Sample Intake"))
                         .afterTime(ejectorStowDelay, robot::reverseIntake)
@@ -150,6 +171,11 @@ public class SpecimenAuto extends LinearOpMode {
 //                        .stopAndAdd(robot::deactivateIntake)
                         .stopAndAdd(robot::ejectUp)//Deposit Middle Sample
                         .stopAndAdd(print.addInstantMessage("Eject Sample"))
+
+
+
+
+                        //Sample #3
 
 
                         //Intake Outer Sample
@@ -187,7 +213,11 @@ public class SpecimenAuto extends LinearOpMode {
 //                        .strafeToLinearHeading(new Vector2d(48,-48),Math.toRadians(90))
                         .stopAndAdd(robot::reverseIntake)
                         .stopAndAdd(new InstantAction(()-> {
-                            robot.specimenIntake();
+                            try {
+                                robot.specimenIntake();
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
 //                            robot.deposit.goToPosition(DepositArmV2.PivotArmStates.SPECIMEN_INTAKE_SIDEWAYS);
 //                            robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE_SIDEWAYS);
                             robot.deposit.openClawAuto();}))
@@ -217,7 +247,7 @@ public class SpecimenAuto extends LinearOpMode {
                         //Intake Spec 2
                         .stopAndAdd(print.addInstantMessage("Specimen Intake 2"))
                         .afterDisp(1, new InstantAction(()-> {
-                            robot.specimenIntake();
+                            robot.specimenDeposit();
 //                            robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE_SIDEWAYS);
 //                            robot.deposit.goToPosition(DepositArm.PivotArmStates.SPECIMEN_INTAKE_SIDEWAYS);
                             robot.deposit.openClawAuto();}))
@@ -243,7 +273,7 @@ public class SpecimenAuto extends LinearOpMode {
                         //Intake Spec 3
                         .stopAndAdd(print.addInstantMessage("Specimen Intake 2"))
                         .afterDisp(1, new InstantAction(()-> {
-                            robot.specimenIntake();
+                            robot.specimenDeposit();
 //                            robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE_SIDEWAYS);
 //                            robot.deposit.goToPosition(DepositArm.PivotArmStates.SPECIMEN_INTAKE_SIDEWAYS);
                             robot.deposit.openClawAuto();}))
