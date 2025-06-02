@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.subsystems.version2.IntakeArm;
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 
-//@TeleOp(name="Intake Arm V2 Test", group="Subsystem Tests")
+@TeleOp(name="Intake Arm V2 Test", group="Subsystem Tests")
 public class IntakeArmV2Test extends LinearOpMode {
 
     IntakeArm arm;

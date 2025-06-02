@@ -39,15 +39,15 @@ public class YellowSideAutoV2 extends LinearOpMode {
     //Locations
     public static final Pose2d startPosition = new Pose2d(-39,-65,Math.toRadians(90));
     public static final Pose2d sample1postion = new Pose2d(-59, -58, Math.toRadians(90));
-    public static final Pose2d sample2postion = new Pose2d(-57.5, -48, Math.toRadians(75));
+    public static final Pose2d sample2postion = new Pose2d(+-57.5, -48, Math.toRadians(75));
     public static final Pose2d sample3postion = new Pose2d(-48, -48, Math.toRadians(45));
     public static final Pose2d bucketPosition = new Pose2d(-57, -61, Math.toRadians(45));
 
     Pose2d innerIntake = MiscMethods.lerp(bucketPosition,new Pose2d(-49,25,0),0.1);
     Pose2d middleIntake = MiscMethods.lerp(bucketPosition,new Pose2d(-59,25,0),0.1);
 
-    Pose2d outerLineUp = new Pose2d(-54, -49,Math.toRadians(90));
-    Pose2d outerIntake = MiscMethods.lerp(outerLineUp, new Pose2d(-69, -24, 0), 0.1 );
+    Pose2d outerLineUp = new Pose2d(-56, -49,Math.toRadians(90));
+    Pose2d outerIntake = MiscMethods.lerp(outerLineUp, new Pose2d(-75, -24, 0), 0.1 );
     Pose2d submerisbleIntake = new Pose2d(-24, -12, 0);
 
     double spikeYOffset = 0;
@@ -112,9 +112,12 @@ public class YellowSideAutoV2 extends LinearOpMode {
                             robot.deposit.openClaw();
                             robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
                             robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
+
                             robot.arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-                            robot.deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
+                            //Allow automatic transfer functions to take over
+//                            robot.deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
                         }))
+                        .waitSeconds(1)
                         .afterTime(armRetractTime/2,robot::transferPosition)
                         .waitSeconds(armRetractTime)
                         .stopAndAdd(robot::closeClaw)
@@ -129,7 +132,7 @@ public class YellowSideAutoV2 extends LinearOpMode {
                         .stopAndAdd(robot::openClaw)
 
                         //Score Sample 2
-                        .strafeToLinearHeading(new Vector2d(-58,-50),Math.toRadians(90), new AngularVelConstraint(Math.PI / 8))
+                        .strafeToLinearHeading(new Vector2d(-58,-50),Math.toRadians(90), new AngularVelConstraint(Math.PI / 4))
                         .stopAndAdd(new InstantAction(robot::sampleIntake))
                         .waitSeconds(armRetractTime)
                         .stopAndAdd(new InstantAction(()->{
@@ -137,7 +140,8 @@ public class YellowSideAutoV2 extends LinearOpMode {
                             robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
                             robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
                             robot.arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-                            robot.deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
+                            //Allow automatic transfer functions to take over
+//                            robot.deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
                         }))
                         .afterTime(armRetractTime/2,robot::transferPosition)
                         .waitSeconds(armRetractTime)
@@ -149,7 +153,7 @@ public class YellowSideAutoV2 extends LinearOpMode {
                         robot.reverseIntake();
                         }))
                         .waitSeconds(1)
-                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(2,-2)), bucketPosition.heading)
+                        .strafeToLinearHeading(bucketPosition.position.plus(new Vector2d(0.5,-0.5)), bucketPosition.heading)
                         .stopAndAdd(robot::openClaw)
 
                         //Score Sample 3
@@ -161,7 +165,8 @@ public class YellowSideAutoV2 extends LinearOpMode {
                             robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
                             robot.lift.goToPosition(DepositLift.LiftStates.SPECIMEN_INTAKE);
                             robot.arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);
-                            robot.deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
+                            //Allow automatic transfer functions to take over
+//                            robot.deposit.goToPosition(DepositArmV2.PivotArmStates.TRASNFER);
                         }))
                         .afterTime(armRetractTime/2,robot::transferPosition)
                         .stopAndAdd(new InstantAction(() ->robot.arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER)))
@@ -177,7 +182,7 @@ public class YellowSideAutoV2 extends LinearOpMode {
                         .waitSeconds(0.1)
 
                         .afterDisp(2, new InstantAction(() -> {
-                            robot.lift.goToPosition(DepositLift.LiftStates.TRANSFER);
+                            robot.lift.goToPosition(DepositLift.LiftStates.SUDO_TRANSFER);
                             robot.deposit.goToPosition(DepositArmV2.PivotArmStates.PARK_ARM);
                             robot.extendo.goToPosition(ExtendoSlide.ExtendoStates.TRANSFER);
                             robot.arm.goToPosition(IntakeArm.IntakeArmStates.TRANSFER);

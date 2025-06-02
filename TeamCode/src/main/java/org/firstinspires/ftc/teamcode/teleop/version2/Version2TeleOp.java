@@ -117,6 +117,11 @@ public class Version2TeleOp extends LinearOpMode {
                 robot.deposit.toggleClaw();
             }
 
+
+            if (controller2.left_stick_button.getValue() && controller2.right_stick_button.getValue()){
+                robot.completeInit();
+                robot.transferPosition();
+            }
 //            robot.setIntakeArmPos(-controller2.left_stick_y);
 //            robot.setIntakeWristPos(controller2.left_stick_x);
 //            robot.setDepositArmPos(-controller2.right_stick_y);

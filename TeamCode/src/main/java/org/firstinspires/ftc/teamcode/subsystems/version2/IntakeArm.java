@@ -53,7 +53,7 @@ public class IntakeArm {
         public void resetPositions(){
             TRANSFER.setArmWrist(ARM_PARALLEL - 0.485,WRIST_PARALLEL-0.738);
             HOVER.setArmWrist(ARM_PARALLEL + 0.08,WRIST_PARALLEL + 0.093);
-            INTAKE.setArmWrist(ARM_PARALLEL + 0.16,WRIST_PARALLEL); //0.917, 0.803
+            INTAKE.setArmWrist(ARM_PARALLEL + 0.16,WRIST_PARALLEL + 0.112); //0.917, 0.803
         }
     }
 

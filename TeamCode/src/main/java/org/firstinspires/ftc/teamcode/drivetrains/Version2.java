@@ -184,7 +184,7 @@ public class Version2 extends Mecanum{
         extendo.updatePID();
         lift.updatePID();
         intake.updateSensor();
-        if (lift.getPosition() > 100 + DepositLift.LiftStates.TRANSFER.getPosition()){
+        if (lift.getPosition() > 100 + DepositLift.LiftStates.TRANSFER.getPosition() + lift.getLiftOffset()){
             if(delayArm && Math.abs(extendo.getVelocity()) < 20 ){
                 deposit.goToPosition(DepositArmV2.PivotArmStates.SAMPLE_DEPOSIT);
                 delayArm = false;
